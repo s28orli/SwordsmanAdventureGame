@@ -1,3 +1,5 @@
+import tiles.AbstractTile;
+import world.Chunk;
 import world.World;
 
 import java.awt.*;
@@ -26,6 +28,7 @@ public class Player extends KeyAdapter implements Runnable
     private final int WINDOW_LENGTH = 500;
 
     private final int MOVEMENT = 2;
+    private Point velocity;
 
     private int pointX = WINDOW_HEIGHT/2;
 
@@ -33,12 +36,14 @@ public class Player extends KeyAdapter implements Runnable
 
     private String position = "back";
     private World world;
+    Rectangle panelBounds;
 
     @Override
     public void run() {
 
         world = new World();
-        world.generateChunk(new Point(0, 0));
+        fillWindowWithChunks();
+        velocity = new Point(0, 0);
         // set up the GUI "look and feel" which should match
         // the OS on which we are running
         JFrame.setDefaultLookAndFeelDecorated(true);
@@ -58,7 +63,10 @@ public class Player extends KeyAdapter implements Runnable
             public void paintComponent(Graphics g) {
 
                 super.paintComponent(g);
+                panelBounds = g.getClipBounds();
+
                 world.draw(g, this);
+
                 g.drawImage(hero, pointX, pointY, this);
 
             }
@@ -117,6 +125,8 @@ public class Player extends KeyAdapter implements Runnable
         // }
         // hero = copy;
         // panel.repaint();
+
+        fillWindowWithChunks();
     }
 
     public void keyPressed(KeyEvent e) {
@@ -156,7 +166,21 @@ public class Player extends KeyAdapter implements Runnable
                 System.out.print(a);
             }
         }
+//        fillWindowWithChunks();
         panel.repaint();
+
+    }
+
+    private void fillWindowWithChunks(){
+        if(panelBounds != null)
+        for (int y = panelBounds.y; y < panelBounds.height + panelBounds.y; y += Chunk.CHUNK_SIZE * AbstractTile.TILE_SIZE) {
+            for (int x = panelBounds.x; x < panelBounds.width + panelBounds.x; x += Chunk.CHUNK_SIZE * AbstractTile.TILE_SIZE) {
+                Point offset = new Point(x / Chunk.CHUNK_SIZE / AbstractTile.TILE_SIZE, y / Chunk.CHUNK_SIZE / AbstractTile.TILE_SIZE);
+//                System.out.println(offset);
+                world.generateChunk(offset);
+
+            }
+        }
     }
 
     public static void main(String args[]) throws IOException{
