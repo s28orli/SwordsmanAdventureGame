@@ -6,6 +6,7 @@ import javax.swing.*;
 import javax.swing.event.*;
 import java.io.*;
 import javax.imageio.ImageIO;
+import java.util.concurrent.TimeUnit;
 /**
  * Class that represents the character the user will be controlling
  *
@@ -21,12 +22,14 @@ public class Player extends KeyAdapter implements Runnable
     private final int WINDOW_HEIGHT = 500;
 
     private final int WINDOW_LENGTH = 500;
-    
+
     private final int MOVEMENT = 2;
 
     private int pointX = WINDOW_HEIGHT/2;
 
     private int pointY = WINDOW_LENGTH/2;
+
+    private String position = "back";
 
     @Override
     public void run() {
@@ -60,6 +63,54 @@ public class Player extends KeyAdapter implements Runnable
         frame.pack();
         frame.setVisible(true);
 
+    }
+
+    @Override
+    public void keyTyped(KeyEvent e) { 
+        BufferedImage copy = hero;
+        if (e.getKeyCode() == KeyEvent.VK_Z) {
+            if (position.equals("back")) {
+                try {
+                    hero = ImageIO.read(new File("Assets/Player/AttackBack.png"));
+                }
+                catch(IOException a) {
+                    System.out.print(a);
+                }
+            }
+            else if (position.equals("front")) {
+                try {
+                    hero = ImageIO.read(new File("Assets/Player/AttackFront.png"));
+                }
+                catch(IOException a) {
+                    System.out.print(a);
+                }
+            }
+            else if (position.equals("left")) {
+                try {
+                    hero = ImageIO.read(new File("Assets/Player/AttackLeft.png"));
+                }
+                catch(IOException a) {
+                    System.out.print(a);
+                }
+            }
+            else {
+                try {
+                    hero = ImageIO.read(new File("Assets/Player/AttackRight.png"));
+                }
+                catch(IOException a) {
+                    System.out.print(a);
+                }
+            }
+        }
+        // panel.repaint();
+        // try {
+            // TimeUnit.SECONDS.sleep((long)0.1);
+        // }
+        // catch (Exception er){
+            // System.out.print(er);
+        // }
+        // hero = copy;
+        // panel.repaint();
     }
 
     public void keyPressed(KeyEvent e) {
