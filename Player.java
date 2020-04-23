@@ -1,3 +1,5 @@
+import world.World;
+
 import java.awt.*;
 import java.awt.image.*;
 import java.awt.event.*;
@@ -30,10 +32,13 @@ public class Player extends KeyAdapter implements Runnable
     private int pointY = WINDOW_LENGTH/2;
 
     private String position = "back";
+    private World world;
 
     @Override
     public void run() {
 
+        world = new World();
+        world.generateChunk(new Point(0, 0));
         // set up the GUI "look and feel" which should match
         // the OS on which we are running
         JFrame.setDefaultLookAndFeelDecorated(true);
@@ -53,8 +58,9 @@ public class Player extends KeyAdapter implements Runnable
             public void paintComponent(Graphics g) {
 
                 super.paintComponent(g);
-
+                world.draw(g, this);
                 g.drawImage(hero, pointX, pointY, this);
+
             }
         };
         frame.add(panel);
@@ -114,7 +120,7 @@ public class Player extends KeyAdapter implements Runnable
     }
 
     public void keyPressed(KeyEvent e) {
-        if (e.getKeyCode() == KeyEvent.VK_UP) {
+        if (e.getKeyCode() == KeyEvent.VK_UP || e.getKeyCode() == KeyEvent.VK_W) {
             try {
                 hero = ImageIO.read(new File("Assets/Player/PlayerBack.png"));
                 pointY = pointY - MOVEMENT;
@@ -123,7 +129,7 @@ public class Player extends KeyAdapter implements Runnable
                 System.out.print(a);
             }
         }
-        else if (e.getKeyCode() == KeyEvent.VK_DOWN) {
+        else if (e.getKeyCode() == KeyEvent.VK_DOWN || e.getKeyCode() == KeyEvent.VK_S) {
             try {
                 hero = ImageIO.read(new File("Assets/Player/PlayerFront.png"));
                 pointY = pointY + MOVEMENT;
@@ -132,7 +138,7 @@ public class Player extends KeyAdapter implements Runnable
                 System.out.print(a);
             }
         }
-        else if (e.getKeyCode() == KeyEvent.VK_LEFT ) {
+        else if (e.getKeyCode() == KeyEvent.VK_LEFT || e.getKeyCode() == KeyEvent.VK_D) {
             try {
                 hero = ImageIO.read(new File("Assets/Player/PlayerLeft.png"));
                 pointX = pointX - MOVEMENT;
@@ -141,7 +147,7 @@ public class Player extends KeyAdapter implements Runnable
                 System.out.print(a);
             }
         }
-        else if (e.getKeyCode() == KeyEvent.VK_RIGHT ) {
+        else if (e.getKeyCode() == KeyEvent.VK_RIGHT || e.getKeyCode() == KeyEvent.VK_A) {
             try {
                 hero = ImageIO.read(new File("Assets/Player/PlayerRight.png"));
                 pointX = pointX + MOVEMENT;
