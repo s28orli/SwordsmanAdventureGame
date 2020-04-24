@@ -23,14 +23,13 @@ public class Player extends KeyAdapter implements Runnable {
 
     private JPanel panel;
 
-    private final int WINDOW_HEIGHT = 600;
+    private final int WINDOW_HEIGHT = 800;
 
     private final int WINDOW_LENGTH = 900;
 
     private final int MOVEMENT = 1;
 
-    private Point playerPosition;
-    private Point lastPlayerPosition;
+    private Point playerPosition;  // Measured in Tiles
 
 
     private String position = "back";
@@ -41,9 +40,7 @@ public class Player extends KeyAdapter implements Runnable {
     public void run() {
 
         world = new World();
-        panelBounds = new Rectangle(0, 0, WINDOW_LENGTH, WINDOW_HEIGHT);
-//        playerPosition = new Point(WINDOW_LENGTH / AbstractTile.TILE_SIZE  / 2, WINDOW_HEIGHT / AbstractTile.TILE_SIZE / 2);
-        lastPlayerPosition = new Point(WINDOW_LENGTH / 2, WINDOW_HEIGHT / 2);
+        panelBounds = new Rectangle(-WINDOW_LENGTH / 2, -WINDOW_HEIGHT / 2, WINDOW_LENGTH, WINDOW_HEIGHT);
         playerPosition = new Point(0, 0);
 
 
@@ -68,7 +65,7 @@ public class Player extends KeyAdapter implements Runnable {
 
                 super.paintComponent(g);
                 redraw(g);
-                }
+            }
         };
         frame.add(panel);
         frame.addKeyListener(this);
@@ -78,10 +75,10 @@ public class Player extends KeyAdapter implements Runnable {
 
     }
 
-    private void redraw(Graphics g){
+    private void redraw(Graphics g) {
         int width = g.getClipBounds().width / 2;
         int height = g.getClipBounds().height / 2;
-        g.translate(-((playerPosition.x * AbstractTile.TILE_SIZE) - width), -((playerPosition.y * AbstractTile.TILE_SIZE) - height)); // TODO fix scrolling issue
+        g.translate(-((playerPosition.x * AbstractTile.TILE_SIZE) - width), -((playerPosition.y * AbstractTile.TILE_SIZE) - height));
         panelBounds = g.getClipBounds();
         world.draw(g, panel);
         g.drawImage(hero, playerPosition.x * AbstractTile.TILE_SIZE, playerPosition.y * AbstractTile.TILE_SIZE, AbstractTile.TILE_SIZE, AbstractTile.TILE_SIZE, panel);
@@ -132,7 +129,6 @@ public class Player extends KeyAdapter implements Runnable {
     }
 
     public void keyPressed(KeyEvent e) {
-        lastPlayerPosition = new Point(playerPosition);
         if (e.getKeyCode() == KeyEvent.VK_UP || e.getKeyCode() == KeyEvent.VK_W) {
             try {
                 hero = ImageIO.read(new File("Assets/Player/PlayerBack.png"));
@@ -169,9 +165,12 @@ public class Player extends KeyAdapter implements Runnable {
 
     private void fillWindowWithChunks() {
         if (panelBounds != null)
-            for (int y = panelBounds.y; y < panelBounds.height + panelBounds.y; y += Chunk.CHUNK_SIZE * AbstractTile.TILE_SIZE) {
-                for (int x = panelBounds.x; x < panelBounds.width + panelBounds.x; x += Chunk.CHUNK_SIZE * AbstractTile.TILE_SIZE) {
-                    Point offset = new Point(x / Chunk.CHUNK_SIZE / AbstractTile.TILE_SIZE, y / Chunk.CHUNK_SIZE / AbstractTile.TILE_SIZE);
+            for (int y = panelBounds.y; y < panelBounds.height + panelBounds.y; y += AbstractTile.TILE_SIZE) {
+                for (int x = panelBounds.x; x < panelBounds.width + panelBounds.x; x += AbstractTile.TILE_SIZE) {
+
+                    double posX = (double) x / (double) Chunk.CHUNK_SIZE / (double) AbstractTile.TILE_SIZE;
+                    double posY = (double) y / (double) Chunk.CHUNK_SIZE / (double) AbstractTile.TILE_SIZE;
+                    Point offset = new Point((int) Math.floor(posX), (int) Math.floor(posY));
                     world.generateChunk(offset);
 
                 }
