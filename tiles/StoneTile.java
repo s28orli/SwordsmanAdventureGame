@@ -11,4 +11,8 @@ public class StoneTile extends AbstractTile {
     public StoneTile() {
         super(2, "Grass", "Assets/Tiles/StoneTile.png");
     }
+    @Override
+    public String toString() {
+        return "StoneTile ";
+    }
 }

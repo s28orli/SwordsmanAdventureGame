@@ -13,7 +13,7 @@ import java.io.File;
 import java.io.IOException;
 
 public abstract class AbstractTile {
-    public static final int TILE_SIZE = 20;
+    public static final int TILE_SIZE = 100;
     private int id;
     private String name;
     Image texture;

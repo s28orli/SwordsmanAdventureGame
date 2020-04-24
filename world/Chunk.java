@@ -21,11 +21,11 @@ public class Chunk {
         tiles = new AbstractTile[CHUNK_SIZE * CHUNK_SIZE];
     }
 
-    public AbstractTile getTileId(Point position){
+    public AbstractTile getTile(Point position){
         return tiles[position.y / CHUNK_SIZE + position.x % CHUNK_SIZE];
     }
 
-    public void setTileId(Point position, AbstractTile tile){
+    public void setTile(Point position, AbstractTile tile){
         tiles[position.y / CHUNK_SIZE + position.x % CHUNK_SIZE] = tile;
     }
 
