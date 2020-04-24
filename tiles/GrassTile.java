@@ -9,11 +9,8 @@ package tiles;
 
 public class GrassTile extends AbstractTile {
     public GrassTile() {
-        super(1, "Grass", "Assets/Tiles/GrassTile.png");
+        super(4, "Grass", "Assets/Tiles/GrassTile.png");
     }
 
-    @Override
-    public String toString() {
-        return "GrassTile ";
-    }
+
 }

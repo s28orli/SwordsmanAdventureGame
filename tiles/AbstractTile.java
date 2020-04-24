@@ -40,4 +40,9 @@ public abstract class AbstractTile {
     public Image getTexture() {
         return texture;
     }
+
+    @Override
+    public String toString() {
+        return name;
+    }
 }

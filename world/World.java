@@ -7,12 +7,8 @@
 
 package world;
 
-import generation.IGenerator;
-import generation.RandomGenerator;
-import generation.RandomSeedGenerator;
-import tiles.AbstractTile;
-import tiles.GrassTile;
-import tiles.StoneTile;
+import generation.*;
+import tiles.*;
 
 import java.awt.*;
 import java.awt.image.ImageObserver;
@@ -25,7 +21,9 @@ public class World {
 
     public World() {
         chunks = new HashMap<>();
-        generator = new RandomSeedGenerator();
+//        generator = new ModifiedDiamondSquareGenerator(Chunk.CHUNK_SIZE);
+        generator = new RandomGenerator(Chunk.CHUNK_SIZE);
+
     }
 
     public void generateChunk(Point offset) {
@@ -34,11 +32,14 @@ public class World {
             for (int y = 0; y < Chunk.CHUNK_SIZE; y++) {
                 for (int x = 0; x < Chunk.CHUNK_SIZE; x++) {
                     double val = generator.getValue(offset.x * Chunk.CHUNK_SIZE + x, offset.x * Chunk.CHUNK_SIZE + x);
-                    if (val > 0.5)
+                    if (val < 0.25) {
+                        chunk.setTile(new Point(x, y), new WaterTile());
+                    } else if (val < 0.5) {
+                        chunk.setTile(new Point(x, y), new DirtTile());
+                    } else if (val < 0.75)
                         chunk.setTile(new Point(x, y), new StoneTile());
-                    else if (val <= 0.5) {
+                    else if (val < 1) {
                         chunk.setTile(new Point(x, y), new GrassTile());
-
                     }
                 }
             }
