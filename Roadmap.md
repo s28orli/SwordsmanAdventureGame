@@ -1,7 +1,7 @@
 
 
 # Assignments
-## Player Implementation - Manny
+## Game Implementation - Manny
 
 ## Terrain Gen - Samuil
 * Tile Definitions by 4/20/20

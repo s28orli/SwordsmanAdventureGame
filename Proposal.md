@@ -9,9 +9,9 @@ We will implement a infinate procederal terrain generation. The specific algorit
 * Diamond Square noise (Light weight and reasonably realistic)
 To simplify this process, we will subdivide the terrain into square groups of a specific size called chunks and generate it with a couple chunks at a time. We will render only the immediate chunks to avoid lag.
 
-## Player
+## Game
 The player avatar will be a sprite image. The sprite will hae many seraeate images to provide animation by cycling through the sprites.
 The animation will be done on a thread. The player's actions will be updated in an enum value to determine the proper sprite for the action.
 
 ## Controls
-The player movement will be controlled by keyboard keys which is why we will use keypress events. Player actions will be controlled by mouse which is why we need the use mouse events. 
+The player movement will be controlled by keyboard keys which is why we will use keypress events. Game actions will be controlled by mouse which is why we need the use mouse events. 
