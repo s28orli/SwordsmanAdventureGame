@@ -80,8 +80,9 @@ public class Player extends KeyAdapter implements Runnable {
         int height = g.getClipBounds().height / 2;
         g.translate(-((playerPosition.x * AbstractTile.TILE_SIZE) - width), -((playerPosition.y * AbstractTile.TILE_SIZE) - height));
         panelBounds = g.getClipBounds();
+
         world.draw(g, panel);
-        g.drawImage(hero, playerPosition.x * AbstractTile.TILE_SIZE, playerPosition.y * AbstractTile.TILE_SIZE, AbstractTile.TILE_SIZE, AbstractTile.TILE_SIZE, panel);
+        g.drawImage(hero, playerPosition.x * AbstractTile.TILE_SIZE, playerPosition.y * AbstractTile.TILE_SIZE, AbstractTile.TILE_SIZE * 5, AbstractTile.TILE_SIZE * 5, panel);
 
     }
 
