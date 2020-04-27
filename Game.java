@@ -16,11 +16,10 @@ import javax.imageio.ImageIO;
 /**
  * Class that represents the character the user will be controlling
  *
- * @author (your name)
- * @version (a version number or a date)
+ * @author Manny Lo
+ * @version Spring 2020
  */
-public class Game extends KeyAdapter implements Runnable {
-    private static BufferedImage hero;
+public class Game extends InputAdapter implements Runnable {
 
     private JPanel panel;
 
@@ -73,6 +72,7 @@ public class Game extends KeyAdapter implements Runnable {
         player.start();
         frame.add(panel);
         frame.addKeyListener(this);
+        frame.addMouseListener(this);
 
         frame.pack();
         frame.setVisible(true);
@@ -82,61 +82,27 @@ public class Game extends KeyAdapter implements Runnable {
     private void redraw(Graphics g) {
         int width = g.getClipBounds().width / 2;
         int height = g.getClipBounds().height / 2;
-        g.translate(-(int)((player.getPosition().getX() * AbstractTile.TILE_SIZE) - width), -(int)((player.getPosition().getY() * AbstractTile.TILE_SIZE) - height));
+        g.translate(-(int) ((player.getPosition().getX() * AbstractTile.TILE_SIZE) - width), -(int) ((player.getPosition().getY() * AbstractTile.TILE_SIZE) - height));
         panelBounds = g.getClipBounds();
-
+        fillWindowWithChunks();
         world.draw(g, panel);
         player.draw(g, panel);
-//        g.drawImage(hero, playerPosition.x * AbstractTile.TILE_SIZE, playerPosition.y * AbstractTile.TILE_SIZE, AbstractTile.TILE_SIZE * 5, AbstractTile.TILE_SIZE * 5, panel);
 
     }
 
-//    @Override
-//    public void keyTyped(KeyEvent e) {
-//        if (e.getKeyCode() == KeyEvent.VK_Z) {
-//            if (position.equals("back")) {
-//                try {
-//                    hero = ImageIO.read(new File("Assets/player.Player/AttackBack.png"));
-//                } catch (IOException a) {
-//                    System.out.print(a);
-//                }
-//            } else if (position.equals("front")) {
-//                try {
-//                    hero = ImageIO.read(new File("Assets/player.Player/AttackFront.png"));
-//                } catch (IOException a) {
-//                    System.out.print(a);
-//                }
-//            } else if (position.equals("left")) {
-//                try {
-//                    hero = ImageIO.read(new File("Assets/player.Player/AttackLeft.png"));
-//                } catch (IOException a) {
-//                    System.out.print(a);
-//                }
-//            } else {
-//                try {
-//                    hero = ImageIO.read(new File("Assets/player.Player/AttackRight.png"));
-//                } catch (IOException a) {
-//                    System.out.print(a);
-//                }
-//            }
-//        }
-//        // panel.repaint();
-//        // try {
-//        // TimeUnit.SECONDS.sleep((long)0.1);
-//        // }
-//        // catch (Exception er){
-//        // System.out.print(er);
-//        // }
-//        // hero = copy;
-//        // panel.repaint();
-//
-//        fillWindowWithChunks();
-//    }
+
 
 
     @Override
     public void keyReleased(KeyEvent e) {
         player.setAction(PlayerAction.Standing);
+    }
+
+    @Override
+    public void mouseClicked(MouseEvent e) {
+        if(e.getButton() == MouseEvent.BUTTON1){
+            player.setAction(PlayerAction.Attacking);
+        }
     }
 
     @Override
@@ -162,7 +128,6 @@ public class Game extends KeyAdapter implements Runnable {
             player.setPosition(new Point2D.Double((player.getPosition().getX() + MOVEMENT), player.getPosition().getY()));
 
         }
-        fillWindowWithChunks();
 
     }
 
@@ -181,7 +146,6 @@ public class Game extends KeyAdapter implements Runnable {
     }
 
     public static void main(String args[]) throws IOException {
-        hero = ImageIO.read(new File("Assets/Player/PlayerBack.png"));
 
         javax.swing.SwingUtilities.invokeLater(new Game());
     }

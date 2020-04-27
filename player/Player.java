@@ -8,6 +8,8 @@ import java.awt.*;
 import java.awt.geom.Point2D;
 import java.io.File;
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.util.Date;
 
 /**
  * player.Player: Description
@@ -36,7 +38,7 @@ public class Player extends Thread {
     Image attackingRight;
 
 
-    JPanel component;
+    LocalDateTime attackStarted;
 
     public Player() {
         facing = PlayerFacing.Front;
@@ -48,10 +50,10 @@ public class Player extends Thread {
         File walkingLeftFile = new File("Assets/Player/WalkingLeft.png");
         File walkingRightFile = new File("Assets/Player/WalkingRight.png");
 
-        File attackingFrontFile = new File("Assets/Player/AttackingFront.png");
-        File attackingBackFile = new File("Assets/Player/AttackingBack.png");
-        File attackingLeftFile = new File("Assets/Player/AttackingLeft.png");
-        File attackingRightFile = new File("Assets/Player/AttackingRight.png");
+        File attackingFrontFile = new File("Assets/Player/AttackFront.png");
+        File attackingBackFile = new File("Assets/Player/AttackBack.png");
+        File attackingLeftFile = new File("Assets/Player/AttackLeft.png");
+        File attackingRightFile = new File("Assets/Player/AttackRight.png");
 
         if (walkingBackFile.exists() &&
                 walkingFrontFile.exists() &&
@@ -66,6 +68,7 @@ public class Player extends Thread {
                 walkingBack = ImageIO.read(walkingBackFile);
                 walkingLeft = ImageIO.read(walkingLeftFile);
                 walkingRight = ImageIO.read(walkingRightFile);
+
                 attackingFront = ImageIO.read(attackingFrontFile);
                 attackingBack = ImageIO.read(attackingBackFile);
                 attackingLeft = ImageIO.read(attackingLeftFile);
@@ -100,55 +103,60 @@ public class Player extends Thread {
 
     public void setAction(PlayerAction action) {
         this.action = action;
+        if(action == PlayerAction.Attacking){
+            attackStarted = LocalDateTime.now();
+        }
     }
 
-    public void draw(Graphics g, JComponent component) {
+    public void draw(Graphics g, JPanel component) {
         int index = animationIndex;
         Image img = null;
         switch (facing) {
             case Front:
-                if (action == PlayerAction.Walking|| action == PlayerAction.Standing)
+                if (action == PlayerAction.Walking || action == PlayerAction.Standing)
                     img = walkingFront;
-                else if (action == PlayerAction.Attacking)
+                else
                     img = attackingFront;
                 break;
+
             case Back:
-                if (action == PlayerAction.Walking|| action == PlayerAction.Standing)
+                if (action == PlayerAction.Walking || action == PlayerAction.Standing)
                     img = walkingBack;
-                else if (action == PlayerAction.Attacking)
+                else
                     img = attackingBack;
                 break;
+
             case Left:
-                if (action == PlayerAction.Walking|| action == PlayerAction.Standing)
+                if (action == PlayerAction.Walking || action == PlayerAction.Standing)
                     img = walkingLeft;
-                else if (action == PlayerAction.Attacking)
+                else
                     img = attackingLeft;
                 break;
+
             case Right:
                 if (action == PlayerAction.Walking || action == PlayerAction.Standing)
                     img = walkingRight;
-                else if (action == PlayerAction.Attacking)
+                else
                     img = attackingRight;
                 break;
         }
+
         if (action == PlayerAction.Standing || action == PlayerAction.Attacking) {
             index = 0;
         }
+        int x = (int) (position.getX() * AbstractTile.TILE_SIZE);
+        int y = (int) (position.getY() * AbstractTile.TILE_SIZE);
+        int dx = x + AbstractTile.TILE_SIZE * 5;
+        int dy = y + AbstractTile.TILE_SIZE * 5;
 
-        if (img != null) {
-            int x = (int) (position.getX() * AbstractTile.TILE_SIZE);
-            int y = (int) (position.getY() * AbstractTile.TILE_SIZE);
-            int dx = x + AbstractTile.TILE_SIZE * 5;
-            int dy = y + AbstractTile.TILE_SIZE * 5;
+        int sx = index * imageWidth;
+        int sy = 0;
 
-            int sx = index * imageWidth;
-            int sy = 0;
+        int sdx = sx + imageWidth;
+        int sdy = sy + imageWidth;
 
-            int sdx = sx + imageWidth;
-            int sdy = sy + imageWidth;
+        g.drawImage(img, x, y, dx, dy, sx, sy, sdx, sdy, component);
 
-            g.drawImage(img, x, y, dx, dy, sx, sy, sdx, sdy, component);
-        }
     }
 
     @Override
@@ -166,6 +174,13 @@ public class Player extends Thread {
                 animationIndex += 1;
                 if (animationIndex > 8) {
                     animationIndex = 1;
+                }
+            }
+            if(attackStarted != null){
+                System.out.println(LocalDateTime.now().minusSeconds(attackStarted.getSecond()).getSecond());
+                if(LocalDateTime.now().minusSeconds(attackStarted.getSecond()).getSecond() >= 1){
+                    action = PlayerAction.Standing;
+                    attackStarted = null;
                 }
             }
 
