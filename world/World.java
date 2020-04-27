@@ -17,12 +17,15 @@ import java.util.HashMap;
 
 public class World {
     private HashMap<Point, Chunk> chunks;
-    private IGenerator generator;
-
+    private PerlinGenerator generator;
+    private static final double terrainInfluence = 0.5;
     public World() {
         chunks = new HashMap<>();
-//        generator = new ModifiedDiamondSquareGenerator(Chunk.CHUNK_SIZE);
-        generator = new RandomGenerator(Chunk.CHUNK_SIZE);
+        generator = new PerlinGenerator(3);
+        generator.setFrequency(0.001);
+        generator.setAmplitude(30);
+
+//        generator = new RandomGenerator(Chunk.CHUNK_SIZE);
 
     }
 
@@ -31,16 +34,9 @@ public class World {
             Chunk chunk = new Chunk(offset);
             for (int y = 0; y < Chunk.CHUNK_SIZE; y++) {
                 for (int x = 0; x < Chunk.CHUNK_SIZE; x++) {
-                    double val = generator.getValue(offset.x * Chunk.CHUNK_SIZE + x, offset.x * Chunk.CHUNK_SIZE + x);
-                    if (val < 0.25) {
-                        chunk.setTile(new Point(x, y), new WaterTile());
-                    } else if (val < 0.5) {
-                        chunk.setTile(new Point(x, y), new DirtTile());
-                    } else if (val < 0.75)
-                        chunk.setTile(new Point(x, y), new StoneTile());
-                    else if (val < 1) {
-                        chunk.setTile(new Point(x, y), new GrassTile());
-                    }
+                    double val = generator.getValue((offset.x * Chunk.CHUNK_SIZE + x) * AbstractTile.TILE_SIZE, (offset.y * Chunk.CHUNK_SIZE + y) * AbstractTile.TILE_SIZE);
+                    chunk.setTile(new Point(x, y), getTileFromTerrainValue(val));
+//                    System.out.println(x + "   " + y + "    " + (offset.x * Chunk.CHUNK_SIZE + x) + "    " + (offset.y * Chunk.CHUNK_SIZE + y));
                 }
             }
             chunks.put(offset, chunk);
@@ -52,7 +48,9 @@ public class World {
             for (int y = 0; y < Chunk.CHUNK_SIZE; y++) {
                 for (int x = 0; x < Chunk.CHUNK_SIZE; x++) {
                     AbstractTile t = chunks.get(offset).getTile(new Point(x, y));
-                    g.drawImage(t.getTexture(), (offset.x * Chunk.CHUNK_SIZE + x) * AbstractTile.TILE_SIZE, (offset.y * Chunk.CHUNK_SIZE + y) * AbstractTile.TILE_SIZE, AbstractTile.TILE_SIZE, AbstractTile.TILE_SIZE, observer);
+                    if (t != null)
+                        g.drawImage(t.getTexture(), (offset.x * Chunk.CHUNK_SIZE + x) * AbstractTile.TILE_SIZE, (offset.y * Chunk.CHUNK_SIZE + y) * AbstractTile.TILE_SIZE, AbstractTile.TILE_SIZE, AbstractTile.TILE_SIZE, observer);
+
                 }
             }
         }
@@ -82,5 +80,20 @@ public class World {
             return c.getTile(pos);
         }
         return null;
+    }
+
+    private AbstractTile getTileFromTerrainValue(double val){
+        int t = (int) (val * 100);
+
+        if(t > 20 && t <= 55){
+            return new GrassTile();
+        }
+        if(t >= 0 && t <= 20){
+            return new WaterTile();
+        }
+        if(t > 55 && t <= 75){
+            return new DirtTile();
+        }
+        else return new StoneTile();
     }
 }
