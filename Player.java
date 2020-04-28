@@ -31,7 +31,6 @@ public class Player extends KeyAdapter implements Runnable {
 
     private Point playerPosition;  // Measured in Tiles
 
-
     private String position = "back";
     private World world;
     Rectangle panelBounds;
@@ -42,7 +41,6 @@ public class Player extends KeyAdapter implements Runnable {
         world = new World();
         panelBounds = new Rectangle(-WINDOW_LENGTH / 2, -WINDOW_HEIGHT / 2, WINDOW_LENGTH, WINDOW_HEIGHT);
         playerPosition = new Point(0, 0);
-
 
         fillWindowWithChunks();
         // set up the GUI "look and feel" which should match
@@ -86,10 +84,42 @@ public class Player extends KeyAdapter implements Runnable {
 
     }
 
-    @Override
-    public void keyTyped(KeyEvent e) {
-        BufferedImage copy = hero;
-        if (e.getKeyCode() == KeyEvent.VK_Z) {
+    public void keyPressed(KeyEvent e) {
+        if (e.getKeyCode() == KeyEvent.VK_UP || e.getKeyCode() == KeyEvent.VK_W) {
+            try {
+                hero = ImageIO.read(new File("Assets/Player/PlayerBack.png"));
+                playerPosition.y -= MOVEMENT;
+                position = "back";
+            } catch (IOException a) {
+                System.out.print(a);
+            }
+        } else if (e.getKeyCode() == KeyEvent.VK_DOWN || e.getKeyCode() == KeyEvent.VK_S) {
+            try {
+                hero = ImageIO.read(new File("Assets/Player/PlayerFront.png"));
+                playerPosition.y += MOVEMENT;
+                position = "front";
+            } catch (IOException a) {
+                System.out.print(a);
+            }
+        } else if (e.getKeyCode() == KeyEvent.VK_LEFT || e.getKeyCode() == KeyEvent.VK_A) {
+            try {
+                hero = ImageIO.read(new File("Assets/Player/PlayerLeft.png"));
+                playerPosition.x -= MOVEMENT;
+                position = "left";
+            } catch (IOException a) {
+                System.out.print(a);
+            }
+        } else if (e.getKeyCode() == KeyEvent.VK_RIGHT || e.getKeyCode() == KeyEvent.VK_D) {
+            try {
+                hero = ImageIO.read(new File("Assets/Player/PlayerRight.png"));
+                playerPosition.x += MOVEMENT;
+                position = "right";
+            } catch (IOException a) {
+                System.out.print(a);
+            }
+        }
+
+        if (e.getKeyCode() == KeyEvent.VK_H) {
             if (position.equals("back")) {
                 try {
                     hero = ImageIO.read(new File("Assets/Player/AttackBack.png"));
@@ -114,49 +144,6 @@ public class Player extends KeyAdapter implements Runnable {
                 } catch (IOException a) {
                     System.out.print(a);
                 }
-            }
-        }
-        // panel.repaint();
-        // try {
-        // TimeUnit.SECONDS.sleep((long)0.1);
-        // }
-        // catch (Exception er){
-        // System.out.print(er);
-        // }
-        // hero = copy;
-        // panel.repaint();
-
-        fillWindowWithChunks();
-    }
-
-    public void keyPressed(KeyEvent e) {
-        if (e.getKeyCode() == KeyEvent.VK_UP || e.getKeyCode() == KeyEvent.VK_W) {
-            try {
-                hero = ImageIO.read(new File("Assets/Player/PlayerBack.png"));
-                playerPosition.y -= MOVEMENT;
-            } catch (IOException a) {
-                System.out.print(a);
-            }
-        } else if (e.getKeyCode() == KeyEvent.VK_DOWN || e.getKeyCode() == KeyEvent.VK_S) {
-            try {
-                hero = ImageIO.read(new File("Assets/Player/PlayerFront.png"));
-                playerPosition.y += MOVEMENT;
-            } catch (IOException a) {
-                System.out.print(a);
-            }
-        } else if (e.getKeyCode() == KeyEvent.VK_LEFT || e.getKeyCode() == KeyEvent.VK_A) {
-            try {
-                hero = ImageIO.read(new File("Assets/Player/PlayerLeft.png"));
-                playerPosition.x -= MOVEMENT;
-            } catch (IOException a) {
-                System.out.print(a);
-            }
-        } else if (e.getKeyCode() == KeyEvent.VK_RIGHT || e.getKeyCode() == KeyEvent.VK_D) {
-            try {
-                hero = ImageIO.read(new File("Assets/Player/PlayerRight.png"));
-                playerPosition.x += MOVEMENT;
-            } catch (IOException a) {
-                System.out.print(a);
             }
         }
         fillWindowWithChunks();
