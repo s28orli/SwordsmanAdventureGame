@@ -1,5 +1,5 @@
 /**
- * RandomSeedGenerator: Description
+ * RandomSeedGenerator: A random generator that randomises the seed with every value and returns the random value.
  *
  * @author Samuil Orlioglu
  * @version 4/24/2020

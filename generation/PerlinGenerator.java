@@ -7,7 +7,12 @@
 
 package generation;
 
-/* https://flafla2.github.io/2014/08/09/perlinnoise.html */
+
+/**
+ * A simple implementation of Perlin noise based on the explanations of the following site.
+ * https://flafla2.github.io/2014/08/09/perlinnoise.html
+ * **/
+
 public class PerlinGenerator implements IGenerator {
     private static int[] permutation = {151, 160, 137, 91, 90, 15,
             131, 13, 201, 95, 96, 53, 194, 233, 7, 225, 140, 36, 103, 30, 69, 142, 8, 99, 37, 240, 21, 10, 23,
@@ -24,7 +29,7 @@ public class PerlinGenerator implements IGenerator {
             138, 236, 205, 93, 222, 114, 67, 29, 24, 72, 243, 141, 128, 195, 78, 66, 215, 61, 156, 180
     };
 
-    private static int[] p;                                                    // Doubled permutation to avoid overflow
+    private static int[] p;
 
 
     double persistence;
@@ -129,11 +134,11 @@ public class PerlinGenerator implements IGenerator {
         bbb = p[p[p[indexX + 1] + indexY + 1]];
 
         double x1, x2, y1, y2;
-        x1 = lerp(grad(aaa, xf, yf),           // The gradient function calculates the dot product between a pseudorandom
-                grad(baa, xf - 1, yf),             // gradient vector and the vector from the input coordinate to the 8
-                u);                                     // surrounding points in its unit cube.
-        x2 = lerp(grad(aba, xf, yf - 1),           // This is all then lerped together as a sort of weighted average based on the faded (u,v,w)
-                grad(bba, xf - 1, yf - 1),             // values we made earlier.
+        x1 = lerp(grad(aaa, xf, yf),
+                grad(baa, xf - 1, yf),
+                u);
+        x2 = lerp(grad(aba, xf, yf - 1),
+                grad(bba, xf - 1, yf - 1),
                 u);
         y1 = lerp(x1, x2, v);
 

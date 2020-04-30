@@ -7,13 +7,13 @@
 
 package generation;
 
-import world.Chunk;
 
 import java.util.Arrays;
 import java.util.Random;
 
 /* https://en.wikipedia.org/wiki/Diamond-square_algorithm */
 /** DOES NOT WORK**/
+@Deprecated
 public class ModifiedDiamondSquareGenerator implements IGenerator {
     int seed;
     int size;

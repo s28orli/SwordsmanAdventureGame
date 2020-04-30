@@ -1,5 +1,5 @@
 /**
- * RandomGenerator: Description
+ * RandomGenerator: Random terrain generator that returns random values
  *
  * @author Samuil Orlioglu
  * @version 4/23/2020
