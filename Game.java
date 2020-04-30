@@ -74,7 +74,6 @@ public class Game extends InputAdapter implements Runnable {
         frame.add(panel);
         frame.addKeyListener(this);
         frame.addMouseListener(this);
-//        frame.addMouseWheelListener(this);
 
         frame.pack();
         frame.setVisible(true);
@@ -139,6 +138,9 @@ public class Game extends InputAdapter implements Runnable {
     public void mouseClicked(MouseEvent e) {
         if (e.getButton() == MouseEvent.BUTTON1) {
             player.setAction(EntityAction.Attacking);
+            for (Entity enemy : enemies) {
+                enemy.setAction(EntityAction.Attacking);
+            }
         }
     }
 
@@ -221,6 +223,9 @@ public class Game extends InputAdapter implements Runnable {
     }
 }
 
+/**
+ * GameLoop class: The purpose is to unify calls to redraw the graphics.
+ */
 class GameLoop extends Thread {
     JPanel panel;
     private static final int WAIT_TIME = 100;

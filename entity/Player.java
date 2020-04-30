@@ -10,7 +10,7 @@ import java.io.File;
 import java.io.IOException;
 
 /**
- * player.Player: Player class that manages animations and player actions
+ * Player: Player class that manages animations and player actions
  *
  * @author Samuil Orlioglu
  * @version 4/27/2020

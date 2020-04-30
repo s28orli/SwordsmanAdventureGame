@@ -1,5 +1,5 @@
 /**
- * Orc: Description
+ * Orc: Orc class that manages animations and orc actions
  *
  * @author Samuil Orlioglu
  * @version 4/30/2020
@@ -22,6 +22,13 @@ public class Orc extends Entity {
     Image walkingBack;
     Image walkingLeft;
     Image walkingRight;
+
+    Image attackingFront;
+    Image attackingBack;
+    Image attackingLeft;
+    Image attackingRight;
+
+
     int animationIndex;
 
     public Orc() {
@@ -32,16 +39,29 @@ public class Orc extends Entity {
         File walkingLeftFile = new File("Assets/Orc/WalkingLeft.png");
         File walkingRightFile = new File("Assets/Orc/WalkingRight.png");
 
+        File attackingFrontFile = new File("Assets/Orc/AttackFront.png");
+        File attackingBackFile = new File("Assets/Orc/AttackBack.png");
+        File attackingLeftFile = new File("Assets/Orc/AttackLeft.png");
+        File attackingRightFile = new File("Assets/Orc/AttackRight.png");
 
         if (walkingBackFile.exists() &&
                 walkingFrontFile.exists() &&
                 walkingRightFile.exists() &&
-                walkingLeftFile.exists()) {
+                walkingLeftFile.exists() &&
+                attackingFrontFile.exists() &&
+                attackingBackFile.exists() &&
+                attackingLeftFile.exists() &&
+                attackingRightFile.exists()) {
             try {
                 walkingFront = ImageIO.read(walkingFrontFile);
                 walkingBack = ImageIO.read(walkingBackFile);
                 walkingLeft = ImageIO.read(walkingLeftFile);
                 walkingRight = ImageIO.read(walkingRightFile);
+
+                attackingFront = ImageIO.read(attackingFrontFile);
+                attackingBack = ImageIO.read(attackingBackFile);
+                attackingLeft = ImageIO.read(attackingLeftFile);
+                attackingRight = ImageIO.read(attackingRightFile);
 
             } catch (IOException e) {
                 System.err.println("Did not find all necessary orc images!!! Exiting!!!!");
@@ -60,22 +80,30 @@ public class Orc extends Entity {
             case Front:
                 if (action == EntityAction.Walking || action == EntityAction.Standing)
                     img = walkingFront;
+                else
+                    img = attackingFront;
                 break;
 
             case Back:
                 if (action == EntityAction.Walking || action == EntityAction.Standing)
                     img = walkingBack;
+                else
+                    img = attackingBack;
 
                 break;
 
             case Left:
                 if (action == EntityAction.Walking || action == EntityAction.Standing)
                     img = walkingLeft;
+                else
+                    img = attackingLeft;
                 break;
 
             case Right:
                 if (action == EntityAction.Walking || action == EntityAction.Standing)
                     img = walkingRight;
+                else
+                    img = attackingRight;
                 break;
         }
 
@@ -118,6 +146,11 @@ public class Orc extends Entity {
                 if (animationIndex > 8 && action == EntityAction.Walking) {
                     animationIndex = 1;
 
+                }
+
+                if(animationIndex > 7 && action == EntityAction.Attacking){
+                    animationIndex = 0;
+                    action = EntityAction.Standing;
                 }
 
             }
