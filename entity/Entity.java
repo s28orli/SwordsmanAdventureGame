@@ -12,9 +12,17 @@ import java.awt.*;
 import java.awt.geom.Point2D;
 
 public abstract class Entity extends Thread {
+    public static final int TIME_DELAY = 50;
+    public static final int ANIMATION_TIME_LENGTH = 100;
     protected Point2D position;
     protected EntityFacing facing;
     protected EntityAction action;
+    protected int health;
+    protected double size = 1;
+
+
+
+
 
     public Entity(){
         facing = EntityFacing.Front;

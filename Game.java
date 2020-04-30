@@ -1,7 +1,4 @@
-import entity.Entity;
-import entity.Player;
-import entity.EntityAction;
-import entity.EntityFacing;
+import entity.*;
 import tiles.AbstractTile;
 import world.Chunk;
 import world.World;
@@ -71,6 +68,9 @@ public class Game extends InputAdapter implements Runnable {
 
         player = new Player();
         player.start();
+        Orc orc = new Orc();
+        orc.start();
+        enemies.add(orc);
         frame.add(panel);
         frame.addKeyListener(this);
         frame.addMouseListener(this);
@@ -89,6 +89,9 @@ public class Game extends InputAdapter implements Runnable {
         fillWindowWithChunks();
         world.draw(g, panel);
         player.draw(g, panel);
+        for (Entity enemy : enemies) {
+            enemy.draw(g, panel);
+        }
 
     }
 
@@ -101,6 +104,35 @@ public class Game extends InputAdapter implements Runnable {
     @Override
     public void keyReleased(KeyEvent e) {
         player.setAction(EntityAction.Standing);
+        if (e.getKeyCode() == KeyEvent.VK_I) {
+            for (Entity enemy : enemies) {
+
+                enemy.setFacing(EntityFacing.Back);
+                enemy.setAction(EntityAction.Standing);
+            }
+
+        } else if (e.getKeyCode() == KeyEvent.VK_K) {
+            for (Entity enemy : enemies) {
+
+                enemy.setAction(EntityAction.Standing);
+                enemy.setFacing(EntityFacing.Front);
+            }
+
+        } else if (e.getKeyCode() == KeyEvent.VK_J) {
+            for (Entity enemy : enemies) {
+
+                enemy.setAction(EntityAction.Standing);
+                enemy.setFacing(EntityFacing.Left);
+            }
+
+        } else if (e.getKeyCode() == KeyEvent.VK_L) {
+            for (Entity enemy : enemies) {
+                enemy.setAction(EntityAction.Standing);
+                enemy.setFacing(EntityFacing.Right);
+            }
+
+
+        }
     }
 
     @Override
@@ -132,8 +164,40 @@ public class Game extends InputAdapter implements Runnable {
             player.setFacing(EntityFacing.Right);
             player.setPosition(new Point2D.Double((player.getPosition().getX() + MOVEMENT), player.getPosition().getY()));
 
-        } else if (e.getKeyCode() == KeyEvent.VK_R) {
-            zoom = 1;
+        }
+
+        if (e.getKeyCode() == KeyEvent.VK_I) {
+            for (Entity enemy : enemies) {
+
+                enemy.setFacing(EntityFacing.Back);
+                enemy.setAction(EntityAction.Walking);
+                enemy.setPosition(new Point2D.Double(enemy.getPosition().getX(), (enemy.getPosition().getY() - MOVEMENT)));
+            }
+
+        } else if (e.getKeyCode() == KeyEvent.VK_K) {
+            for (Entity enemy : enemies) {
+
+                enemy.setAction(EntityAction.Walking);
+                enemy.setFacing(EntityFacing.Front);
+                enemy.setPosition(new Point2D.Double(enemy.getPosition().getX(), (enemy.getPosition().getY() + MOVEMENT)));
+            }
+
+        } else if (e.getKeyCode() == KeyEvent.VK_J) {
+            for (Entity enemy : enemies) {
+
+                enemy.setAction(EntityAction.Walking);
+                enemy.setFacing(EntityFacing.Left);
+                enemy.setPosition(new Point2D.Double((enemy.getPosition().getX() - MOVEMENT), enemy.getPosition().getY()));
+            }
+
+        } else if (e.getKeyCode() == KeyEvent.VK_L) {
+            for (Entity enemy : enemies) {
+                enemy.setAction(EntityAction.Walking);
+                enemy.setFacing(EntityFacing.Right);
+                enemy.setPosition(new Point2D.Double((enemy.getPosition().getX() + MOVEMENT), enemy.getPosition().getY()));
+            }
+
+
         }
     }
 

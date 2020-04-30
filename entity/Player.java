@@ -23,11 +23,9 @@ public class Player extends Entity {
     private static final int ATTACKING_HORIZONTAL_IMAGE_WIDTH = 115;
     private static final int ATTACKING_VERTICAL_IMAGE_WIDTH = 95;
 
-    private static final int ANIMATION_TIME_LENGTH = 100;
     private static final int HORIZONTAL_TEXTURE_OFFSET = 17;
     private static final int VERTICAL_TEXTURE_OFFSET = 50;
     private static final int WALKING_IMAGE_HEIGHT = 72;
-    private static final int TIME_DELAY = 50;
     private int animationIndex;
     private boolean IsPlayerSwingingSword;
 
@@ -45,6 +43,7 @@ public class Player extends Entity {
     public Player() {
         super();
         animationIndex = 0;
+        size = 1;
         File walkingFrontFile = new File("Assets/Player/WalkingFront.png");
         File walkingBackFile = new File("Assets/Player/WalkingBack.png");
         File walkingLeftFile = new File("Assets/Player/WalkingLeft.png");
@@ -157,18 +156,18 @@ public class Player extends Entity {
         // Panel location coordinates
         int x = (int) (position.getX() * AbstractTile.TILE_SIZE);
         int y = (int) (position.getY() * AbstractTile.TILE_SIZE);
-        int dx = (x + width);
-        int dy = (y + width);
+        int dx = (int) (x + width * size);
+        int dy = (int) (y + width * size);
 
         // If Attacking and facing left, adjust image bounds for offset left attack image
         if (action == EntityAction.Attacking && facing == EntityFacing.Left) {
             x = (int) (position.getX() * AbstractTile.TILE_SIZE) - WALKING_IMAGE_WIDTH + HORIZONTAL_TEXTURE_OFFSET;
-            dx = (x + width);
+            dx = (int) (x + width * size);
         }
         // If Attacking and facing back, adjust image bounds for offset back attack image
         if (action == EntityAction.Attacking && facing == EntityFacing.Back) {
             y = (int) (position.getY() * AbstractTile.TILE_SIZE) - WALKING_IMAGE_HEIGHT + VERTICAL_TEXTURE_OFFSET;
-            dy = (y + width);
+            dy = (int) (y + width * size);
         }
 
         // Image location coordinates
