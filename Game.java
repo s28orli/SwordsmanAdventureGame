@@ -1,17 +1,18 @@
-import player.Player;
-import player.PlayerAction;
-import player.PlayerFacing;
+import entity.Entity;
+import entity.Player;
+import entity.EntityAction;
+import entity.EntityFacing;
 import tiles.AbstractTile;
 import world.Chunk;
 import world.World;
 
 import java.awt.*;
 import java.awt.geom.Point2D;
-import java.awt.image.*;
 import java.awt.event.*;
 import javax.swing.*;
 import java.io.*;
-import javax.imageio.ImageIO;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Class that represents the character the user will be controlling
@@ -22,23 +23,21 @@ import javax.imageio.ImageIO;
 public class Game extends InputAdapter implements Runnable {
 
     private JPanel panel;
-
     private final int WINDOW_HEIGHT = 800;
-
     private final int WINDOW_LENGTH = 900;
-
     private final double MOVEMENT = 0.1;
-    Player player;
-    GameLoop mainLoop;
-
+    private Player player;
+    private GameLoop mainLoop;
 
     private World world;
-    Rectangle panelBounds;
-    double zoom = 1;
+    private Rectangle panelBounds;
+    private double zoom = 1;
+
+    private List<Entity> enemies;
 
     @Override
     public void run() {
-
+        enemies = new ArrayList<>(20);
         world = new World();
         panelBounds = new Rectangle(-WINDOW_LENGTH / 2, -WINDOW_HEIGHT / 2, WINDOW_LENGTH, WINDOW_HEIGHT);
 
@@ -63,7 +62,8 @@ public class Game extends InputAdapter implements Runnable {
             public void paintComponent(Graphics g) {
 
                 super.paintComponent(g);
-                redraw(g);
+                if (g != null)
+                    redraw(g);
             }
         };
         mainLoop = new GameLoop(panel);
@@ -100,42 +100,41 @@ public class Game extends InputAdapter implements Runnable {
 
     @Override
     public void keyReleased(KeyEvent e) {
-        player.setAction(PlayerAction.Standing);
+        player.setAction(EntityAction.Standing);
     }
 
     @Override
     public void mouseClicked(MouseEvent e) {
         if (e.getButton() == MouseEvent.BUTTON1) {
-            player.setAction(PlayerAction.Attacking);
+            player.setAction(EntityAction.Attacking);
         }
     }
 
     @Override
     public void keyPressed(KeyEvent e) {
         if (e.getKeyCode() == KeyEvent.VK_UP || e.getKeyCode() == KeyEvent.VK_W) {
-            player.setFacing(PlayerFacing.Back);
-            player.setAction(PlayerAction.Walking);
+            player.setFacing(EntityFacing.Back);
+            player.setAction(EntityAction.Walking);
             player.setPosition(new Point2D.Double(player.getPosition().getX(), (player.getPosition().getY() - MOVEMENT)));
 
         } else if (e.getKeyCode() == KeyEvent.VK_DOWN || e.getKeyCode() == KeyEvent.VK_S) {
-            player.setAction(PlayerAction.Walking);
-            player.setFacing(PlayerFacing.Front);
+            player.setAction(EntityAction.Walking);
+            player.setFacing(EntityFacing.Front);
             player.setPosition(new Point2D.Double(player.getPosition().getX(), (player.getPosition().getY() + MOVEMENT)));
 
         } else if (e.getKeyCode() == KeyEvent.VK_LEFT || e.getKeyCode() == KeyEvent.VK_A) {
-            player.setAction(PlayerAction.Walking);
-            player.setFacing(PlayerFacing.Left);
+            player.setAction(EntityAction.Walking);
+            player.setFacing(EntityFacing.Left);
             player.setPosition(new Point2D.Double((player.getPosition().getX() - MOVEMENT), player.getPosition().getY()));
 
         } else if (e.getKeyCode() == KeyEvent.VK_RIGHT || e.getKeyCode() == KeyEvent.VK_D) {
-            player.setAction(PlayerAction.Walking);
-            player.setFacing(PlayerFacing.Right);
+            player.setAction(EntityAction.Walking);
+            player.setFacing(EntityFacing.Right);
             player.setPosition(new Point2D.Double((player.getPosition().getX() + MOVEMENT), player.getPosition().getY()));
 
         } else if (e.getKeyCode() == KeyEvent.VK_R) {
             zoom = 1;
         }
-
     }
 
     private void fillWindowWithChunks() {

@@ -1,4 +1,4 @@
-package player;
+package entity;
 
 import tiles.AbstractTile;
 
@@ -17,9 +17,8 @@ import java.io.IOException;
  */
 
 
-public class Player extends Thread {
-    private PlayerFacing facing;
-    private PlayerAction action;
+public class Player extends Entity {
+
     private static final int WALKING_IMAGE_WIDTH = 64;
     private static final int ATTACKING_HORIZONTAL_IMAGE_WIDTH = 115;
     private static final int ATTACKING_VERTICAL_IMAGE_WIDTH = 95;
@@ -31,7 +30,6 @@ public class Player extends Thread {
     private static final int TIME_DELAY = 50;
     private int animationIndex;
     private boolean IsPlayerSwingingSword;
-    Point2D position; // Player's position in Tiles
 
 
     Image walkingFront;
@@ -45,9 +43,7 @@ public class Player extends Thread {
     Image attackingRight;
 
     public Player() {
-        facing = PlayerFacing.Front;
-        action = PlayerAction.Standing;
-        position = new Point(0, 0);
+        super();
         animationIndex = 0;
         File walkingFrontFile = new File("Assets/Player/WalkingFront.png");
         File walkingBackFile = new File("Assets/Player/WalkingBack.png");
@@ -86,31 +82,24 @@ public class Player extends Thread {
 
     }
 
-    public Point2D getPosition() {
-        return position;
-    }
-
-    public void setPosition(Point2D.Double position) {
+    @Override
+    public void setPosition(Point2D position) {
         if (!IsPlayerSwingingSword)
             this.position = position;
     }
 
-    public PlayerFacing getFacing() {
-        return facing;
-    }
 
-    public void setFacing(PlayerFacing facing) {
+    @Override
+    public void setFacing(EntityFacing facing) {
         this.facing = facing;
     }
 
-    public PlayerAction getAction() {
-        return action;
-    }
 
-    public void setAction(PlayerAction action) {
+    @Override
+    public void setAction(EntityAction action) {
         if (!IsPlayerSwingingSword) {
             this.action = action;
-            if (action == PlayerAction.Attacking) {
+            if (action == EntityAction.Attacking) {
                 animationIndex = 0;
                 IsPlayerSwingingSword = true;
             }
@@ -124,43 +113,43 @@ public class Player extends Thread {
 
         switch (facing) {
             case Front:
-                if (action == PlayerAction.Walking || action == PlayerAction.Standing)
+                if (action == EntityAction.Walking || action == EntityAction.Standing)
                     img = walkingFront;
                 else
                     img = attackingFront;
                 break;
 
             case Back:
-                if (action == PlayerAction.Walking || action == PlayerAction.Standing)
+                if (action == EntityAction.Walking || action == EntityAction.Standing)
                     img = walkingBack;
                 else
                     img = attackingBack;
                 break;
 
             case Left:
-                if (action == PlayerAction.Walking || action == PlayerAction.Standing)
+                if (action == EntityAction.Walking || action == EntityAction.Standing)
                     img = walkingLeft;
                 else
                     img = attackingLeft;
                 break;
 
             case Right:
-                if (action == PlayerAction.Walking || action == PlayerAction.Standing)
+                if (action == EntityAction.Walking || action == EntityAction.Standing)
                     img = walkingRight;
                 else
                     img = attackingRight;
                 break;
         }
 
-        if (action == PlayerAction.Standing) {
+        if (action == EntityAction.Standing) {
             index = 0;
 
         }
         // Set proper width
-        if (action == PlayerAction.Attacking) {
-            if ((facing == PlayerFacing.Left || facing == PlayerFacing.Right))
+        if (action == EntityAction.Attacking) {
+            if ((facing == EntityFacing.Left || facing == EntityFacing.Right))
                 width = ATTACKING_HORIZONTAL_IMAGE_WIDTH;
-            if ((facing == PlayerFacing.Front || facing == PlayerFacing.Back))
+            if ((facing == EntityFacing.Front || facing == EntityFacing.Back))
                 width = ATTACKING_VERTICAL_IMAGE_WIDTH;
         }
 
@@ -172,12 +161,12 @@ public class Player extends Thread {
         int dy = (y + width);
 
         // If Attacking and facing left, adjust image bounds for offset left attack image
-        if (action == PlayerAction.Attacking && facing == PlayerFacing.Left) {
+        if (action == EntityAction.Attacking && facing == EntityFacing.Left) {
             x = (int) (position.getX() * AbstractTile.TILE_SIZE) - WALKING_IMAGE_WIDTH + HORIZONTAL_TEXTURE_OFFSET;
             dx = (x + width);
         }
         // If Attacking and facing back, adjust image bounds for offset back attack image
-        if (action == PlayerAction.Attacking && facing == PlayerFacing.Back) {
+        if (action == EntityAction.Attacking && facing == EntityFacing.Back) {
             y = (int) (position.getY() * AbstractTile.TILE_SIZE) - WALKING_IMAGE_HEIGHT + VERTICAL_TEXTURE_OFFSET;
             dy = (y + width);
         }
@@ -207,14 +196,14 @@ public class Player extends Thread {
                 time = 0;
                 animationIndex += 1;
 
-                if (animationIndex > 8 && action == PlayerAction.Walking) {
+                if (animationIndex > 8 && action == EntityAction.Walking) {
                     animationIndex = 1;
                     IsPlayerSwingingSword = false;
 
                 }
-                if (animationIndex > 5 && action == PlayerAction.Attacking) {
+                if (animationIndex > 5 && action == EntityAction.Attacking) {
                     animationIndex = 0;
-                    action = PlayerAction.Standing;
+                    action = EntityAction.Standing;
                     IsPlayerSwingingSword = false;
                 }
             }

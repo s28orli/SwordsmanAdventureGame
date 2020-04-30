@@ -1,4 +1,4 @@
-package player;
+package entity;
 
 /**
  * player.PlayerFacing: Represents the player's texture facing.
@@ -7,6 +7,6 @@ package player;
  * @version 4/27/2020
  */
 
-public enum  PlayerFacing {
+public enum EntityFacing {
     Front, Back, Left, Right
 }
