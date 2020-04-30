@@ -8,11 +8,9 @@ import java.awt.*;
 import java.awt.geom.Point2D;
 import java.io.File;
 import java.io.IOException;
-import java.time.LocalDateTime;
-import java.util.Date;
 
 /**
- * player.Player: Description
+ * player.Player: Player class that manages animations and player actions
  *
  * @author Samuil Orlioglu
  * @version 4/27/2020
@@ -22,10 +20,19 @@ import java.util.Date;
 public class Player extends Thread {
     private PlayerFacing facing;
     private PlayerAction action;
-    private static final int imageWidth = 64;
-    private static final int animationTimeLength = 100;
+    private static final int WALKING_IMAGE_WIDTH = 64;
+    private static final int ATTACKING_HORIZONTAL_IMAGE_WIDTH = 115;
+    private static final int ATTACKING_VERTICAL_IMAGE_WIDTH = 95;
+
+    private static final int ANIMATION_TIME_LENGTH = 100;
+    private static final int HORIZONTAL_TEXTURE_OFFSET = 17;
+    private static final int VERTICAL_TEXTURE_OFFSET = 50;
+    private static final int WALKING_IMAGE_HEIGHT = 72;
+    private static final int TIME_DELAY = 50;
     private int animationIndex;
-    Point2D position;
+    private boolean IsPlayerSwingingSword;
+    Point2D position; // Player's position in Tiles
+
 
     Image walkingFront;
     Image walkingBack;
@@ -36,9 +43,6 @@ public class Player extends Thread {
     Image attackingBack;
     Image attackingLeft;
     Image attackingRight;
-
-
-    LocalDateTime attackStarted;
 
     public Player() {
         facing = PlayerFacing.Front;
@@ -75,7 +79,8 @@ public class Player extends Thread {
                 attackingRight = ImageIO.read(attackingRightFile);
 
             } catch (IOException e) {
-                e.printStackTrace();
+                System.err.println("Did not find all necessary player images!!! Exiting!!!!");
+                System.exit(-1);
             }
         }
 
@@ -86,7 +91,8 @@ public class Player extends Thread {
     }
 
     public void setPosition(Point2D.Double position) {
-        this.position = position;
+        if (!IsPlayerSwingingSword)
+            this.position = position;
     }
 
     public PlayerFacing getFacing() {
@@ -102,15 +108,20 @@ public class Player extends Thread {
     }
 
     public void setAction(PlayerAction action) {
-        this.action = action;
-        if(action == PlayerAction.Attacking){
-            attackStarted = LocalDateTime.now();
+        if (!IsPlayerSwingingSword) {
+            this.action = action;
+            if (action == PlayerAction.Attacking) {
+                animationIndex = 0;
+                IsPlayerSwingingSword = true;
+            }
         }
     }
 
     public void draw(Graphics g, JPanel component) {
         int index = animationIndex;
+        int width = WALKING_IMAGE_WIDTH;
         Image img = null;
+
         switch (facing) {
             case Front:
                 if (action == PlayerAction.Walking || action == PlayerAction.Standing)
@@ -141,19 +152,42 @@ public class Player extends Thread {
                 break;
         }
 
-        if (action == PlayerAction.Standing || action == PlayerAction.Attacking) {
+        if (action == PlayerAction.Standing) {
             index = 0;
+
         }
+        // Set proper width
+        if (action == PlayerAction.Attacking) {
+            if ((facing == PlayerFacing.Left || facing == PlayerFacing.Right))
+                width = ATTACKING_HORIZONTAL_IMAGE_WIDTH;
+            if ((facing == PlayerFacing.Front || facing == PlayerFacing.Back))
+                width = ATTACKING_VERTICAL_IMAGE_WIDTH;
+        }
+
+
+        // Panel location coordinates
         int x = (int) (position.getX() * AbstractTile.TILE_SIZE);
         int y = (int) (position.getY() * AbstractTile.TILE_SIZE);
-        int dx = x + AbstractTile.TILE_SIZE * 5;
-        int dy = y + AbstractTile.TILE_SIZE * 5;
+        int dx = (x + width);
+        int dy = (y + width);
 
-        int sx = index * imageWidth;
+        // If Attacking and facing left, adjust image bounds for offset left attack image
+        if (action == PlayerAction.Attacking && facing == PlayerFacing.Left) {
+            x = (int) (position.getX() * AbstractTile.TILE_SIZE) - WALKING_IMAGE_WIDTH + HORIZONTAL_TEXTURE_OFFSET;
+            dx = (x + width);
+        }
+        // If Attacking and facing back, adjust image bounds for offset back attack image
+        if (action == PlayerAction.Attacking && facing == PlayerFacing.Back) {
+            y = (int) (position.getY() * AbstractTile.TILE_SIZE) - WALKING_IMAGE_HEIGHT + VERTICAL_TEXTURE_OFFSET;
+            dy = (y + width);
+        }
+
+        // Image location coordinates
+        int sx = index * width;
         int sy = 0;
+        int sdx = sx + width;
+        int sdy = sy + width;
 
-        int sdx = sx + imageWidth;
-        int sdy = sy + imageWidth;
 
         g.drawImage(img, x, y, dx, dy, sx, sy, sdx, sdy, component);
 
@@ -164,23 +198,24 @@ public class Player extends Thread {
         int time = 0;
         while (true) {
             try {
-                sleep(100);
-                time += 100;
+                sleep(TIME_DELAY);
+                time += TIME_DELAY;
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            if ((double) (time) / animationTimeLength > 1) {
+            if ((double) (time) / ANIMATION_TIME_LENGTH > 1) {
                 time = 0;
                 animationIndex += 1;
-                if (animationIndex > 8) {
+
+                if (animationIndex > 8 && action == PlayerAction.Walking) {
                     animationIndex = 1;
+                    IsPlayerSwingingSword = false;
+
                 }
-            }
-            if(attackStarted != null){
-                System.out.println(LocalDateTime.now().minusSeconds(attackStarted.getSecond()).getSecond());
-                if(LocalDateTime.now().minusSeconds(attackStarted.getSecond()).getSecond() >= 1){
+                if (animationIndex > 5 && action == PlayerAction.Attacking) {
+                    animationIndex = 0;
                     action = PlayerAction.Standing;
-                    attackStarted = null;
+                    IsPlayerSwingingSword = false;
                 }
             }
 

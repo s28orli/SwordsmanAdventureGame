@@ -1,5 +1,5 @@
 /**
- * Chunk: Description
+ * Chunk: A square chunk of of the world with tiles.
  *
  * @author Samuil Orlioglu
  * @version 4/23/2020
@@ -10,7 +10,6 @@ package world;
 import tiles.AbstractTile;
 
 import java.awt.*;
-import java.awt.geom.Point2D;
 
 public class Chunk {
     public static final int CHUNK_SIZE = 20;

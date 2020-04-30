@@ -1,5 +1,5 @@
 /**
- * ConstantGenerator: Description
+ * ConstantGenerator:  A Generator that only returns a specific value given as an argument in constructor.
  *
  * @author Samuil Orlioglu
  * @version 4/23/2020

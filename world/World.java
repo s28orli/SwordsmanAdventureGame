@@ -1,5 +1,5 @@
 /**
- * World: Description
+ * World: A world with a dictionary of chunks.
  *
  * @author Samuil Orlioglu
  * @version 4/23/2020
@@ -17,15 +17,12 @@ import java.util.HashMap;
 
 public class World {
     private HashMap<Point, Chunk> chunks;
-    private PerlinGenerator generator;
-    private static final double terrainInfluence = 0.5;
+    private IGenerator generator;
+
     public World() {
         chunks = new HashMap<>();
-        generator = new PerlinGenerator(3);
-        generator.setFrequency(0.001);
-        generator.setAmplitude(30);
-
-//        generator = new RandomGenerator(Chunk.CHUNK_SIZE);
+        generator = new PerlinGenerator(3, 1, 30, 0.001);
+//        generator = new RandomGenerator(0);
 
     }
 
@@ -36,7 +33,6 @@ public class World {
                 for (int x = 0; x < Chunk.CHUNK_SIZE; x++) {
                     double val = generator.getValue((offset.x * Chunk.CHUNK_SIZE + x) * AbstractTile.TILE_SIZE, (offset.y * Chunk.CHUNK_SIZE + y) * AbstractTile.TILE_SIZE);
                     chunk.setTile(new Point(x, y), getTileFromTerrainValue(val));
-//                    System.out.println(x + "   " + y + "    " + (offset.x * Chunk.CHUNK_SIZE + x) + "    " + (offset.y * Chunk.CHUNK_SIZE + y));
                 }
             }
             chunks.put(offset, chunk);
@@ -44,7 +40,9 @@ public class World {
     }
 
     public void draw(Graphics g, ImageObserver observer) {
+
         for (Point offset : chunks.keySet()) {
+
             for (int y = 0; y < Chunk.CHUNK_SIZE; y++) {
                 for (int x = 0; x < Chunk.CHUNK_SIZE; x++) {
                     AbstractTile t = chunks.get(offset).getTile(new Point(x, y));
@@ -82,18 +80,17 @@ public class World {
         return null;
     }
 
-    private AbstractTile getTileFromTerrainValue(double val){
+    private AbstractTile getTileFromTerrainValue(double val) {
         int t = (int) (val * 100);
 
-        if(t > 20 && t <= 55){
+        if (t > 20 && t <= 55) {
             return new GrassTile();
         }
-        if(t >= 0 && t <= 20){
+        if (t >= 0 && t <= 20) {
             return new WaterTile();
         }
-        if(t > 55 && t <= 75){
+        if (t > 55 && t <= 75) {
             return new DirtTile();
-        }
-        else return new StoneTile();
+        } else return new StoneTile();
     }
 }

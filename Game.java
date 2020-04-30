@@ -34,6 +34,7 @@ public class Game extends InputAdapter implements Runnable {
 
     private World world;
     Rectangle panelBounds;
+    double zoom = 1;
 
     @Override
     public void run() {
@@ -73,16 +74,17 @@ public class Game extends InputAdapter implements Runnable {
         frame.add(panel);
         frame.addKeyListener(this);
         frame.addMouseListener(this);
+//        frame.addMouseWheelListener(this);
 
         frame.pack();
         frame.setVisible(true);
-
     }
 
     private void redraw(Graphics g) {
-        int width = g.getClipBounds().width / 2;
-        int height = g.getClipBounds().height / 2;
-        g.translate(-(int) ((player.getPosition().getX() * AbstractTile.TILE_SIZE) - width), -(int) ((player.getPosition().getY() * AbstractTile.TILE_SIZE) - height));
+        int width = (int) ((g.getClipBounds().width / 2) * zoom);
+        int height = (int) ((g.getClipBounds().height / 2) * zoom);
+
+        g.translate(-(int) (((player.getPosition().getX() * AbstractTile.TILE_SIZE) - width) * zoom), -(int) (((player.getPosition().getY() * AbstractTile.TILE_SIZE) - height) * zoom));
         panelBounds = g.getClipBounds();
         fillWindowWithChunks();
         world.draw(g, panel);
@@ -90,8 +92,11 @@ public class Game extends InputAdapter implements Runnable {
 
     }
 
-
-
+    @Override
+    public void mouseWheelMoved(MouseWheelEvent e) {
+        zoom += e.getPreciseWheelRotation();
+        panel.repaint();
+    }
 
     @Override
     public void keyReleased(KeyEvent e) {
@@ -100,7 +105,7 @@ public class Game extends InputAdapter implements Runnable {
 
     @Override
     public void mouseClicked(MouseEvent e) {
-        if(e.getButton() == MouseEvent.BUTTON1){
+        if (e.getButton() == MouseEvent.BUTTON1) {
             player.setAction(PlayerAction.Attacking);
         }
     }
@@ -127,6 +132,8 @@ public class Game extends InputAdapter implements Runnable {
             player.setFacing(PlayerFacing.Right);
             player.setPosition(new Point2D.Double((player.getPosition().getX() + MOVEMENT), player.getPosition().getY()));
 
+        } else if (e.getKeyCode() == KeyEvent.VK_R) {
+            zoom = 1;
         }
 
     }
