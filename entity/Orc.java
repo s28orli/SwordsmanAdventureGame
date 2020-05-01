@@ -16,17 +16,10 @@ import java.io.File;
 import java.io.IOException;
 
 public class Orc extends Entity {
-    private static final int WALKING_IMAGE_WIDTH = 64;
 
-    Image walkingFront;
-    Image walkingBack;
-    Image walkingLeft;
-    Image walkingRight;
+    Image walkingImage;
+    Image attackingImage;
 
-    Image attackingFront;
-    Image attackingBack;
-    Image attackingLeft;
-    Image attackingRight;
 
 
     int animationIndex;
@@ -34,98 +27,55 @@ public class Orc extends Entity {
     public Orc() {
         super();
         size = 1.5;
-        File walkingFrontFile = new File("Assets/Orc/WalkingFront.png");
-        File walkingBackFile = new File("Assets/Orc/WalkingBack.png");
-        File walkingLeftFile = new File("Assets/Orc/WalkingLeft.png");
-        File walkingRightFile = new File("Assets/Orc/WalkingRight.png");
+        File walkingFile = new File("Assets/Orc/OrcWalk.png");
+        File attackingFile = new File("Assets/Orc/OrcAttack.png");
 
-        File attackingFrontFile = new File("Assets/Orc/AttackFront.png");
-        File attackingBackFile = new File("Assets/Orc/AttackBack.png");
-        File attackingLeftFile = new File("Assets/Orc/AttackLeft.png");
-        File attackingRightFile = new File("Assets/Orc/AttackRight.png");
-
-        if (walkingBackFile.exists() &&
-                walkingFrontFile.exists() &&
-                walkingRightFile.exists() &&
-                walkingLeftFile.exists() &&
-                attackingFrontFile.exists() &&
-                attackingBackFile.exists() &&
-                attackingLeftFile.exists() &&
-                attackingRightFile.exists()) {
+        if (walkingFile.exists() && attackingFile.exists()) {
             try {
-                walkingFront = ImageIO.read(walkingFrontFile);
-                walkingBack = ImageIO.read(walkingBackFile);
-                walkingLeft = ImageIO.read(walkingLeftFile);
-                walkingRight = ImageIO.read(walkingRightFile);
-
-                attackingFront = ImageIO.read(attackingFrontFile);
-                attackingBack = ImageIO.read(attackingBackFile);
-                attackingLeft = ImageIO.read(attackingLeftFile);
-                attackingRight = ImageIO.read(attackingRightFile);
-
+                walkingImage = ImageIO.read(walkingFile);
+                attackingImage = ImageIO.read(attackingFile);
             } catch (IOException e) {
                 System.err.println("Did not find all necessary orc images!!! Exiting!!!!");
                 System.exit(-1);
             }
         }
+
+
     }
 
     @Override
     public void draw(Graphics g, JPanel component) {
-        int index = animationIndex;
-        int width = WALKING_IMAGE_WIDTH;
-        Image img = null;
-
-        switch (facing) {
-            case Front:
-                if (action == EntityAction.Walking || action == EntityAction.Standing)
-                    img = walkingFront;
-                else
-                    img = attackingFront;
-                break;
-
-            case Back:
-                if (action == EntityAction.Walking || action == EntityAction.Standing)
-                    img = walkingBack;
-                else
-                    img = attackingBack;
-
-                break;
-
-            case Left:
-                if (action == EntityAction.Walking || action == EntityAction.Standing)
-                    img = walkingLeft;
-                else
-                    img = attackingLeft;
-                break;
-
-            case Right:
-                if (action == EntityAction.Walking || action == EntityAction.Standing)
-                    img = walkingRight;
-                else
-                    img = attackingRight;
-                break;
+        Image img;
+        int width = WALKING_ANIMATION_SIZE;
+        if (action == EntityAction.Attacking) {
+            img = attackingImage;
+        } else {
+            img = walkingImage;
         }
+
+        int index = animationIndex;
 
         if (action == EntityAction.Standing) {
             index = 0;
-
         }
 
 
+        int halfWidth = width / 2;
+
         // Panel location coordinates
-        int x = (int) (position.getX() * AbstractTile.TILE_SIZE);
-        int y = (int) (position.getY() * AbstractTile.TILE_SIZE);
-        int dx = (int)(x + width * size);
-        int dy = (int)(y + width* size);
+        int x = (int) (position.getX() * AbstractTile.TILE_SIZE - (halfWidth * size));
+        int y = (int) (position.getY() * AbstractTile.TILE_SIZE - (halfWidth * size));
+        int dx = (int) (x + (width * size));
+        int dy = (int) (y + (width * size));
+
 
         // Image location coordinates
         int sx = index * width;
-        int sy = 0;
+        int sy = facing.value * width;
         int sdx = sx + width;
         int sdy = sy + width;
 
-
+        System.out.println(sx + " " + sy + " " + sdx + " " + sdy);
         g.drawImage(img, x, y, dx, dy, sx, sy, sdx, sdy, component);
     }
 
@@ -143,12 +93,11 @@ public class Orc extends Entity {
                 time = 0;
                 animationIndex += 1;
 
-                if (animationIndex > 8 && action == EntityAction.Walking) {
+                if (animationIndex > walkingImageCycle && action == EntityAction.Walking) {
                     animationIndex = 1;
-
                 }
 
-                if(animationIndex > 7 && action == EntityAction.Attacking){
+                if (animationIndex > attackingImageCycle && action == EntityAction.Attacking) {
                     animationIndex = 0;
                     action = EntityAction.Standing;
                 }
@@ -157,5 +106,14 @@ public class Orc extends Entity {
 
 
         }
+    }
+
+    @Override
+    public void setAction(EntityAction action) {
+        this.action = action;
+        if (action == EntityAction.Attacking) {
+            animationIndex = 0;
+        }
+
     }
 }

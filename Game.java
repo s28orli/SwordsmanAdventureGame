@@ -23,7 +23,7 @@ public class Game extends InputAdapter implements Runnable {
     private final int WINDOW_HEIGHT = 800;
     private final int WINDOW_LENGTH = 900;
     private final double MOVEMENT = 0.1;
-    private Player player;
+    private Entity player;
     private GameLoop mainLoop;
 
     private World world;
@@ -68,9 +68,7 @@ public class Game extends InputAdapter implements Runnable {
 
         player = new Player();
         player.start();
-        Orc orc = new Orc();
-        orc.start();
-        enemies.add(orc);
+
         frame.add(panel);
         frame.addKeyListener(this);
         frame.addMouseListener(this);
@@ -131,6 +129,13 @@ public class Game extends InputAdapter implements Runnable {
             }
 
 
+
+
+        }
+        else if(e.getKeyCode() == KeyEvent.VK_M){
+            for (Entity enemy : enemies) {
+                enemy.setAction(EntityAction.Attacking);
+            }
         }
     }
 
@@ -138,9 +143,6 @@ public class Game extends InputAdapter implements Runnable {
     public void mouseClicked(MouseEvent e) {
         if (e.getButton() == MouseEvent.BUTTON1) {
             player.setAction(EntityAction.Attacking);
-//            for (Entity enemy : enemies) {
-//                enemy.setAction(EntityAction.Attacking);
-//            }
         }
     }
 

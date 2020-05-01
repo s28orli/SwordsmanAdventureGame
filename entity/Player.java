@@ -19,8 +19,7 @@ import java.io.IOException;
 
 public class Player extends Entity {
 
-    private static final int WALKING_ANIMATION_SIZE = 64;
-    private static final int ATTACKING_ANIMATION_SIZE = 192;
+
     private int animationIndex;
     private boolean IsPlayerSwingingSword;
     Image walkingImage;
@@ -30,6 +29,8 @@ public class Player extends Entity {
         super();
         animationIndex = 0;
         size = 1;
+        walkingImageCycle = 7;
+        attackingImageCycle = 5;
         File walkingFile = new File("Assets/Player/PlayerWalk.png");
         File attackingFile = new File("Assets/Player/PlayerAttack.png");
 
@@ -123,12 +124,12 @@ public class Player extends Entity {
                 time = 0;
                 animationIndex += 1;
 
-                if (animationIndex > 7 && action == EntityAction.Walking) {
+                if (animationIndex > walkingImageCycle && action == EntityAction.Walking) {
                     animationIndex = 1;
                     IsPlayerSwingingSword = false;
 
                 }
-                if (animationIndex > 5 && action == EntityAction.Attacking) {
+                if (animationIndex > attackingImageCycle && action == EntityAction.Attacking) {
                     animationIndex = 0;
                     action = EntityAction.Standing;
                     IsPlayerSwingingSword = false;
