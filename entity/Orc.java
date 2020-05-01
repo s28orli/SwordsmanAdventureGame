@@ -24,8 +24,12 @@ public class Orc extends Entity {
 
     int animationIndex;
 
-    public Orc() {
-        super();
+    public Orc(){
+        this(new Point(0, 0));
+    }
+
+    public Orc(Point position) {
+        super(position);
         size = 1.5;
         File walkingFile = new File("Assets/Orc/OrcWalk.png");
         File attackingFile = new File("Assets/Orc/OrcAttack.png");
@@ -75,7 +79,6 @@ public class Orc extends Entity {
         int sdx = sx + width;
         int sdy = sy + width;
 
-        System.out.println(sx + " " + sy + " " + sdx + " " + sdy);
         g.drawImage(img, x, y, dx, dy, sx, sy, sdx, sdy, component);
     }
 

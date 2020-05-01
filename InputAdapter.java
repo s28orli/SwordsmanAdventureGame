@@ -1,7 +1,7 @@
 import java.awt.event.*;
 
 /**
- * InputAdapter: Description
+ * InputAdapter: Class to unify input files.
  *
  * @author Samuil Orlioglu
  * @version 4/27/2020

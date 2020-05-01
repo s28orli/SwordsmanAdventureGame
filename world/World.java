@@ -21,8 +21,7 @@ public class World {
 
     public World() {
         chunks = new HashMap<>();
-        generator = new PerlinGenerator(3, 1, 30, 0.001);
-//        generator = new RandomGenerator(0);
+        generator = new PerlinGenerator(3, 40, 70, .01);
 
     }
 
@@ -31,7 +30,7 @@ public class World {
             Chunk chunk = new Chunk(offset);
             for (int y = 0; y < Chunk.CHUNK_SIZE; y++) {
                 for (int x = 0; x < Chunk.CHUNK_SIZE; x++) {
-                    double val = generator.getValue((offset.x * Chunk.CHUNK_SIZE + x) * AbstractTile.TILE_SIZE, (offset.y * Chunk.CHUNK_SIZE + y) * AbstractTile.TILE_SIZE);
+                    double val = generator.getValue((offset.x * Chunk.CHUNK_SIZE + x + 0.1), (offset.y * Chunk.CHUNK_SIZE + y + 0.1));
                     chunk.setTile(new Point(x, y), getTileFromTerrainValue(val));
                 }
             }
@@ -81,16 +80,18 @@ public class World {
     }
 
     private AbstractTile getTileFromTerrainValue(double val) {
-        int t = (int) (val * 100);
 
-        if (t > 20 && t <= 55) {
-            return new GrassTile();
-        }
-        if (t >= 0 && t <= 20) {
+        int t = (int) (val * 5);
+
+        if(t <= 1){
             return new WaterTile();
         }
-        if (t > 55 && t <= 75) {
+        if(t == 2){
+            return new GrassTile();
+        }
+        if (t == 3){
             return new DirtTile();
-        } else return new StoneTile();
+        }
+        else return new StoneTile();
     }
 }

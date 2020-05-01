@@ -10,6 +10,7 @@ import javax.swing.*;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 /**
  * Class that represents the character the user will be controlling
@@ -22,7 +23,7 @@ public class Game extends InputAdapter implements Runnable {
     private JPanel panel;
     private final int WINDOW_HEIGHT = 800;
     private final int WINDOW_LENGTH = 900;
-    private final double MOVEMENT = 0.1;
+    private final double MOVEMENT = 0.2;
     private Entity player;
     private GameLoop mainLoop;
 
@@ -69,6 +70,18 @@ public class Game extends InputAdapter implements Runnable {
         player = new Player();
         player.start();
 
+        Random rand = new Random(0);
+
+        for (int i = 0; i < 10; i++) {
+            Entity ent;
+            if (i % 5 == 0) {
+                ent = new OrcBoss(new Point(rand.nextInt(5 * Chunk.CHUNK_SIZE) - 2 * Chunk.CHUNK_SIZE, rand.nextInt(5 * Chunk.CHUNK_SIZE) - 2 * Chunk.CHUNK_SIZE));
+            } else
+                ent = new Orc(new Point(rand.nextInt(5 * Chunk.CHUNK_SIZE) - 2 * Chunk.CHUNK_SIZE, rand.nextInt(5 * Chunk.CHUNK_SIZE) - 2 * Chunk.CHUNK_SIZE));
+            ent.start();
+            enemies.add(ent);
+        }
+
         frame.add(panel);
         frame.addKeyListener(this);
         frame.addMouseListener(this);
@@ -85,10 +98,11 @@ public class Game extends InputAdapter implements Runnable {
         panelBounds = g.getClipBounds();
         fillWindowWithChunks();
         world.draw(g, panel);
-        player.draw(g, panel);
         for (Entity enemy : enemies) {
             enemy.draw(g, panel);
         }
+        player.draw(g, panel);
+
 
     }
 
@@ -129,10 +143,7 @@ public class Game extends InputAdapter implements Runnable {
             }
 
 
-
-
-        }
-        else if(e.getKeyCode() == KeyEvent.VK_M){
+        } else if (e.getKeyCode() == KeyEvent.VK_M) {
             for (Entity enemy : enemies) {
                 enemy.setAction(EntityAction.Attacking);
             }
@@ -200,8 +211,10 @@ public class Game extends InputAdapter implements Runnable {
                 enemy.setFacing(EntityFacing.Right);
                 enemy.setPosition(new Point2D.Double((enemy.getPosition().getX() + MOVEMENT), enemy.getPosition().getY()));
             }
+        }
 
-
+        if(e.getKeyCode() == KeyEvent.VK_ESCAPE){
+            System.exit(0);
         }
     }
 

@@ -17,7 +17,8 @@ import java.io.IOException;
 
 public class OrcBoss extends Orc {
 
-    public OrcBoss() {
+    public OrcBoss(Point position) {
+        this.position = position;
         size = 2;
         File walkingFile = new File("Assets/Orc/Boss/OrcBossWalk.png");
         File attackingFile = new File("Assets/Orc/Boss/OrcBossAttack.png");
@@ -32,6 +33,10 @@ public class OrcBoss extends Orc {
                 System.exit(-1);
             }
         }
+    }
+
+    public OrcBoss(){
+        this(new Point(0, 0));
     }
 
     @Override

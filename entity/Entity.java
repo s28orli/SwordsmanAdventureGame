@@ -31,9 +31,16 @@ public abstract class Entity extends Thread {
 
 
     public Entity(){
+        this(new Point(0, 0));
+    }
+
+
+
+
+    public Entity(Point position){
         facing = EntityFacing.Front;
         action = EntityAction.Standing;
-        position = new Point(0, 0);
+        this.position = position;
     }
 
     public Point2D getPosition() {
