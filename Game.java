@@ -138,9 +138,9 @@ public class Game extends InputAdapter implements Runnable {
     public void mouseClicked(MouseEvent e) {
         if (e.getButton() == MouseEvent.BUTTON1) {
             player.setAction(EntityAction.Attacking);
-            for (Entity enemy : enemies) {
-                enemy.setAction(EntityAction.Attacking);
-            }
+//            for (Entity enemy : enemies) {
+//                enemy.setAction(EntityAction.Attacking);
+//            }
         }
     }
 

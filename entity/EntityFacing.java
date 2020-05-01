@@ -8,5 +8,12 @@ package entity;
  */
 
 public enum EntityFacing {
-    Front, Back, Left, Right
+    Back(0), Left(1), Front(2), Right(3);
+    public final int value;
+
+    EntityFacing(int value){
+        this.value = value;
+    }
+
+
 }

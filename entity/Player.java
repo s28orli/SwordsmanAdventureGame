@@ -19,66 +19,31 @@ import java.io.IOException;
 
 public class Player extends Entity {
 
-    private static final int WALKING_IMAGE_WIDTH = 64;
-    private static final int ATTACKING_HORIZONTAL_IMAGE_WIDTH = 115;
-    private static final int ATTACKING_VERTICAL_IMAGE_WIDTH = 95;
-
-    private static final int HORIZONTAL_TEXTURE_OFFSET = 17;
-    private static final int VERTICAL_TEXTURE_OFFSET = 50;
-    private static final int WALKING_IMAGE_HEIGHT = 72;
+    private static final int WALKING_ANIMATION_SIZE = 64;
+    private static final int ATTACKING_ANIMATION_SIZE = 192;
     private int animationIndex;
     private boolean IsPlayerSwingingSword;
-
-
-    Image walkingFront;
-    Image walkingBack;
-    Image walkingLeft;
-    Image walkingRight;
-
-    Image attackingFront;
-    Image attackingBack;
-    Image attackingLeft;
-    Image attackingRight;
+    Image walkingImage;
+    Image attackingImage;
 
     public Player() {
         super();
         animationIndex = 0;
         size = 1;
-        File walkingFrontFile = new File("Assets/Player/WalkingFront.png");
-        File walkingBackFile = new File("Assets/Player/WalkingBack.png");
-        File walkingLeftFile = new File("Assets/Player/WalkingLeft.png");
-        File walkingRightFile = new File("Assets/Player/WalkingRight.png");
+        File walkingFile = new File("Assets/Player/PlayerWalk.png");
+        File attackingFile = new File("Assets/Player/PlayerAttack.png");
 
-        File attackingFrontFile = new File("Assets/Player/AttackFront.png");
-        File attackingBackFile = new File("Assets/Player/AttackBack.png");
-        File attackingLeftFile = new File("Assets/Player/AttackLeft.png");
-        File attackingRightFile = new File("Assets/Player/AttackRight.png");
 
-        if (walkingBackFile.exists() &&
-                walkingFrontFile.exists() &&
-                walkingRightFile.exists() &&
-                walkingLeftFile.exists() &&
-                attackingFrontFile.exists() &&
-                attackingBackFile.exists() &&
-                attackingLeftFile.exists() &&
-                attackingRightFile.exists()) {
+        if (walkingFile.exists() && attackingFile.exists()) {
             try {
-                walkingFront = ImageIO.read(walkingFrontFile);
-                walkingBack = ImageIO.read(walkingBackFile);
-                walkingLeft = ImageIO.read(walkingLeftFile);
-                walkingRight = ImageIO.read(walkingRightFile);
-
-                attackingFront = ImageIO.read(attackingFrontFile);
-                attackingBack = ImageIO.read(attackingBackFile);
-                attackingLeft = ImageIO.read(attackingLeftFile);
-                attackingRight = ImageIO.read(attackingRightFile);
+                walkingImage = ImageIO.read(walkingFile);
+                attackingImage = ImageIO.read(attackingFile);
 
             } catch (IOException e) {
                 System.err.println("Did not find all necessary player images!!! Exiting!!!!");
                 System.exit(-1);
             }
         }
-
     }
 
     @Override
@@ -106,73 +71,36 @@ public class Player extends Entity {
     }
 
     public void draw(Graphics g, JPanel component) {
-        int index = animationIndex;
-        int width = WALKING_IMAGE_WIDTH;
-        Image img = null;
 
-        switch (facing) {
-            case Front:
-                if (action == EntityAction.Walking || action == EntityAction.Standing)
-                    img = walkingFront;
-                else
-                    img = attackingFront;
-                break;
-
-            case Back:
-                if (action == EntityAction.Walking || action == EntityAction.Standing)
-                    img = walkingBack;
-                else
-                    img = attackingBack;
-                break;
-
-            case Left:
-                if (action == EntityAction.Walking || action == EntityAction.Standing)
-                    img = walkingLeft;
-                else
-                    img = attackingLeft;
-                break;
-
-            case Right:
-                if (action == EntityAction.Walking || action == EntityAction.Standing)
-                    img = walkingRight;
-                else
-                    img = attackingRight;
-                break;
+        Image img;
+        int width;
+        if (action == EntityAction.Attacking) {
+            img = attackingImage;
+            width = ATTACKING_ANIMATION_SIZE;
+        } else {
+            img = walkingImage;
+            width = WALKING_ANIMATION_SIZE;
         }
+
+        int index = animationIndex;
 
         if (action == EntityAction.Standing) {
             index = 0;
-
-        }
-        // Set proper width
-        if (action == EntityAction.Attacking) {
-            if ((facing == EntityFacing.Left || facing == EntityFacing.Right))
-                width = ATTACKING_HORIZONTAL_IMAGE_WIDTH;
-            if ((facing == EntityFacing.Front || facing == EntityFacing.Back))
-                width = ATTACKING_VERTICAL_IMAGE_WIDTH;
         }
 
+
+        int halfWidth = width / 2;
 
         // Panel location coordinates
-        int x = (int) (position.getX() * AbstractTile.TILE_SIZE);
-        int y = (int) (position.getY() * AbstractTile.TILE_SIZE);
-        int dx = (int) (x + width * size);
-        int dy = (int) (y + width * size);
+        int x = (int) (position.getX() * AbstractTile.TILE_SIZE - (halfWidth * size));
+        int y = (int) (position.getY() * AbstractTile.TILE_SIZE - (halfWidth * size));
+        int dx = (int) (x + (width * size));
+        int dy = (int) (y + (width * size));
 
-        // If Attacking and facing left, adjust image bounds for offset left attack image
-        if (action == EntityAction.Attacking && facing == EntityFacing.Left) {
-            x = (int) (position.getX() * AbstractTile.TILE_SIZE) - WALKING_IMAGE_WIDTH + HORIZONTAL_TEXTURE_OFFSET;
-            dx = (int) (x + width * size);
-        }
-        // If Attacking and facing back, adjust image bounds for offset back attack image
-        if (action == EntityAction.Attacking && facing == EntityFacing.Back) {
-            y = (int) (position.getY() * AbstractTile.TILE_SIZE) - WALKING_IMAGE_HEIGHT + VERTICAL_TEXTURE_OFFSET;
-            dy = (int) (y + width * size);
-        }
 
         // Image location coordinates
         int sx = index * width;
-        int sy = 0;
+        int sy = facing.value * width;
         int sdx = sx + width;
         int sdy = sy + width;
 
@@ -195,7 +123,7 @@ public class Player extends Entity {
                 time = 0;
                 animationIndex += 1;
 
-                if (animationIndex > 8 && action == EntityAction.Walking) {
+                if (animationIndex > 7 && action == EntityAction.Walking) {
                     animationIndex = 1;
                     IsPlayerSwingingSword = false;
 
