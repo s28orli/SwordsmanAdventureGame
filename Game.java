@@ -26,6 +26,10 @@ public class Game extends InputAdapter implements Runnable {
     private final double MOVEMENT = 0.2;
     private Entity player;
     private GameLoop mainLoop;
+    int health = 3;
+    int score = 0;
+    JLabel healthLabel = new JLabel("Health: " + health);
+    JLabel scoreLabel = new JLabel("Score: " + score);
 
     private World world;
     private Rectangle panelBounds;
@@ -38,7 +42,6 @@ public class Game extends InputAdapter implements Runnable {
         enemies = new ArrayList<>(20);
         world = new World();
         panelBounds = new Rectangle(-WINDOW_LENGTH / 2, -WINDOW_HEIGHT / 2, WINDOW_LENGTH, WINDOW_HEIGHT);
-
 
         fillWindowWithChunks();
         // set up the GUI "look and feel" which should match
@@ -62,6 +65,7 @@ public class Game extends InputAdapter implements Runnable {
                 super.paintComponent(g);
                 if (g != null)
                     redraw(g);
+
             }
         };
         mainLoop = new GameLoop(panel);
@@ -69,7 +73,6 @@ public class Game extends InputAdapter implements Runnable {
 
         player = new Player();
         player.start();
-
         Random rand = new Random(0);
 
         for (int i = 0; i < 10; i++) {
@@ -82,8 +85,31 @@ public class Game extends InputAdapter implements Runnable {
             enemies.add(ent);
         }
 
+        Thread t = new Thread() {
+                public void run() {
+                    while (true) {
+                        for (Entity i:enemies) {
+                            if (player.isCollision(i)) {
+                                System.out.println("ouch");
+                                health--;
+                                //buffer window where player can not get hit again
+                                try {
+                                    sleep(3000);
+                                } catch (InterruptedException e) {
+                                    System.out.print(e);
+                                }
+                            }
+                        }
+                    }
+                }
+            };
+        t.start();
+        
+        panel.add(healthLabel);
+        panel.add(scoreLabel);
+
         frame.add(panel);
-        frame.addKeyListener(this);
+        frame.addKeyListener(this); 
         frame.addMouseListener(this);
 
         frame.pack();
@@ -102,8 +128,6 @@ public class Game extends InputAdapter implements Runnable {
             enemy.draw(g, panel);
         }
         player.draw(g, panel);
-
-
     }
 
     @Override
@@ -141,7 +165,6 @@ public class Game extends InputAdapter implements Runnable {
                 enemy.setAction(EntityAction.Standing);
                 enemy.setFacing(EntityFacing.Right);
             }
-
 
         } else if (e.getKeyCode() == KeyEvent.VK_M) {
             for (Entity enemy : enemies) {

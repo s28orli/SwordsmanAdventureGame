@@ -66,6 +66,13 @@ public abstract class Entity extends Thread {
     public void setAction(EntityAction action) {
         this.action = action;
     }
+    
+    public boolean isCollision (Entity obj) {
+        if (position.distance(obj.position) < 2) {
+            return true;
+        }
+        return false;
+    }
 
     public abstract void draw(Graphics g, JPanel component);
 }
