@@ -8,28 +8,41 @@
 package entity;
 
 import tiles.AbstractTile;
+import util.MathHelper;
+import util.Vector;
+import world.World;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
+import java.awt.geom.Point2D;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 
-public class Orc extends Entity {
+public class Orc extends Entity implements ITrackerEntity {
+    public static final double MOVEMENT_SPEED = 0.1;
+    protected Image walkingImage;
+    protected Image attackingImage;
+    public static final Point2D[] consecutiveCoords = new Point2D[]{
+            new Point(-3, 0), new Point(-2, 0), new Point(-1, 0),
+            new Point(3, 0), new Point(2, 0), new Point(1, 0),
 
-    Image walkingImage;
-    Image attackingImage;
-
-
-
+            new Point(0, -3), new Point(0, -2), new Point(0, -1),
+            new Point(0, 3), new Point(0, 2), new Point(0, 1)
+    };
     int animationIndex;
+    protected ArrayList<ITrackableEntity> trackedEntities;
+    protected ScentPoint currentScent;
+    protected ITrackableEntity currentTrackedEntity;
 
-    public Orc(){
-        this(new Point(0, 0));
+    public Orc(World world) {
+        this(world, new Point(0, 0));
     }
 
-    public Orc(Point position) {
-        super(position);
+    public Orc(World world, Point position) {
+        super(world, position);
+        trackedEntities = new ArrayList<>();
         size = 1.5;
         File walkingFile = new File("Assets/Orc/OrcWalk.png");
         File attackingFile = new File("Assets/Orc/OrcAttack.png");
@@ -92,6 +105,7 @@ public class Orc extends Entity {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
+            updateTracking();
             if ((double) (time) / ANIMATION_TIME_LENGTH > 1) {
                 time = 0;
                 animationIndex += 1;
@@ -111,6 +125,61 @@ public class Orc extends Entity {
         }
     }
 
+    private void updateTracking() {
+        if (currentScent == null) {
+            searchForTarget();
+        }
+        if (currentScent != null && currentTrackedEntity != null) {
+            for (Point2D point : consecutiveCoords) {
+                Point2D pos = new Point((int) (point.getX() + position.getX()), (int) (point.getY() + position.getY()));
+                ScentPoint scent = currentTrackedEntity.getScentPoint(pos);
+                if (scent != null) {
+                    if (scent.getLife() > currentScent.getLife()) {
+                        currentScent = scent;
+                        setAction(EntityAction.Walking);
+                        Vector direction = MathHelper.getDirection(position, currentScent.getPosition());
+                        direction.normalize();
+
+                        position.setLocation(position.getX() + direction.getX(), position.getY() + direction.getY());
+                        return;
+                    }
+                }
+            }
+        }
+
+
+    }
+
+    private void searchForTarget() {
+//        double minimumDistance = Double.MAX_VALUE;
+//        currentTrackedEntity = null;
+//        for (ITrackableEntity entity : trackedEntities) {
+//            Point2D pos = entity.getPosition();
+//            double dist = pos.distance(position);
+//            if (dist < minimumDistance) {
+//                minimumDistance = dist;
+//                currentTrackedEntity = entity;
+//            }
+//        }
+
+//        if (currentTrackedEntity != null) {
+        for (int y = -Entity.TRACKING_SEARCH_DISTANCE; y <= Entity.TRACKING_SEARCH_DISTANCE; y++) {
+            for (int x = -Entity.TRACKING_SEARCH_DISTANCE; x <= Entity.TRACKING_SEARCH_DISTANCE; x++) {
+                currentScent = currentTrackedEntity.getScentPoint(new Point((int) (position.getX() + x), (int) (position.getY() + y)));
+                if (currentScent != null) {
+                    setAction(EntityAction.Walking);
+                    Vector direction = MathHelper.getDirection(position, currentScent.getPosition());
+                    direction.normalize();
+
+                    position.setLocation(position.getX() + direction.getX(), position.getY() + direction.getY());
+                    return;
+                }
+            }
+        }
+//        }
+    }
+
+
     @Override
     public void setAction(EntityAction action) {
         this.action = action;
@@ -118,5 +187,10 @@ public class Orc extends Entity {
             animationIndex = 0;
         }
 
+    }
+
+    @Override
+    public void addEntityToTrack(ITrackableEntity entity) {
+        trackedEntities.add(entity);
     }
 }

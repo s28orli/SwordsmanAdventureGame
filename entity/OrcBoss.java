@@ -8,6 +8,7 @@
 package entity;
 
 import tiles.AbstractTile;
+import world.World;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -17,7 +18,8 @@ import java.io.IOException;
 
 public class OrcBoss extends Orc {
 
-    public OrcBoss(Point position) {
+    public OrcBoss(World world, Point position) {
+        super(world, position);
         this.position = position;
         size = 2;
         File walkingFile = new File("Assets/Orc/Boss/OrcBossWalk.png");
@@ -35,8 +37,8 @@ public class OrcBoss extends Orc {
         }
     }
 
-    public OrcBoss(){
-        this(new Point(0, 0));
+    public OrcBoss(World world){
+        this(world, new Point(0, 0));
     }
 
     @Override

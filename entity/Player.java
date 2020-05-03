@@ -1,6 +1,7 @@
 package entity;
 
 import tiles.AbstractTile;
+import world.World;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -8,6 +9,8 @@ import java.awt.*;
 import java.awt.geom.Point2D;
 import java.io.File;
 import java.io.IOException;
+import java.util.*;
+import java.util.List;
 
 /**
  * Player: Player class that manages animations and player actions
@@ -17,16 +20,18 @@ import java.io.IOException;
  */
 
 
-public class Player extends Entity {
+public class Player extends Entity implements ITrackableEntity {
 
 
     private int animationIndex;
     private boolean IsPlayerSwingingSword;
     Image walkingImage;
     Image attackingImage;
+    LinkedList<ScentPoint> scentTrail;
 
-    public Player() {
-        super();
+    public Player(World world) {
+        super(world);
+        scentTrail = new LinkedList<ScentPoint>();
         animationIndex = 0;
         size = 1;
         walkingImageCycle = 7;
@@ -72,6 +77,14 @@ public class Player extends Entity {
     }
 
     public void draw(Graphics g, JPanel component) {
+        int rad = 10;
+        g.setColor(Color.RED);
+        Object[] t = scentTrail.toArray();
+        for (Object obj : t) {
+            ScentPoint point = (ScentPoint) obj;
+            g.fillOval((int) (point.getPosition().getX() * AbstractTile.TILE_SIZE) - rad, (int) (point.getPosition().getY() * AbstractTile.TILE_SIZE) - rad, rad * 2, rad * 2);
+        }
+
 
         Image img;
         int width;
@@ -108,18 +121,25 @@ public class Player extends Entity {
 
         g.drawImage(img, x, y, dx, dy, sx, sy, sdx, sdy, component);
 
+
+
+
     }
 
     @Override
     public void run() {
         int time = 0;
+        int scentTime = 0;
         while (true) {
             try {
                 sleep(TIME_DELAY);
                 time += TIME_DELAY;
+                scentTime++;
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
+
+            updateScentTrail();
             if ((double) (time) / ANIMATION_TIME_LENGTH > 1) {
                 time = 0;
                 animationIndex += 1;
@@ -138,5 +158,43 @@ public class Player extends Entity {
 
 
         }
+    }
+
+    private synchronized void updateScentTrail() {
+        Stack<ScentPoint> toRemove = new Stack<>();
+        for (ScentPoint point : scentTrail) {
+            point.tick();
+            if (point.getLife() <= 0) {
+                toRemove.push(point);
+            }
+        }
+
+        while (!toRemove.empty()) {
+            scentTrail.remove(toRemove.pop());
+        }
+
+        scentTrail.addFirst(new ScentPoint(new Point((int)position.getX(), (int)position.getY()), 200, this));
+    }
+
+    @Override
+    public List<ScentPoint> getScentPoints() {
+        return scentTrail;
+    }
+
+    @Override
+    public ScentPoint getMostRecentScentPoint() {
+        return scentTrail.get(0);
+    }
+
+    @Override
+    public synchronized ScentPoint getScentPoint(Point2D position) {
+        Object[] t = scentTrail.toArray();
+        for (Object obj : t) {
+            ScentPoint point = (ScentPoint) obj;
+            if (point.getPosition().equals(position)) {
+                return point;
+            }
+        }
+        return null;
     }
 }

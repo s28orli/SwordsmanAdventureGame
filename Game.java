@@ -24,7 +24,7 @@ public class Game extends InputAdapter implements Runnable {
     private final int WINDOW_HEIGHT = 800;
     private final int WINDOW_LENGTH = 900;
     private final double MOVEMENT = 0.2;
-    private Entity player;
+    private Player player;
     private GameLoop mainLoop;
 
     private World world;
@@ -67,17 +67,19 @@ public class Game extends InputAdapter implements Runnable {
         mainLoop = new GameLoop(panel);
         mainLoop.start();
 
-        player = new Player();
+        player = new Player(world);
         player.start();
 
         Random rand = new Random(0);
 
         for (int i = 0; i < 10; i++) {
-            Entity ent;
+            Orc ent;
             if (i % 5 == 0) {
-                ent = new OrcBoss(new Point(rand.nextInt(5 * Chunk.CHUNK_SIZE) - 2 * Chunk.CHUNK_SIZE, rand.nextInt(5 * Chunk.CHUNK_SIZE) - 2 * Chunk.CHUNK_SIZE));
-            } else
-                ent = new Orc(new Point(rand.nextInt(5 * Chunk.CHUNK_SIZE) - 2 * Chunk.CHUNK_SIZE, rand.nextInt(5 * Chunk.CHUNK_SIZE) - 2 * Chunk.CHUNK_SIZE));
+                ent = new OrcBoss(world, new Point(rand.nextInt(5 * Chunk.CHUNK_SIZE) - 2 * Chunk.CHUNK_SIZE, rand.nextInt(5 * Chunk.CHUNK_SIZE) - 2 * Chunk.CHUNK_SIZE));
+            } else {
+                ent = new Orc(world, new Point(rand.nextInt(5 * Chunk.CHUNK_SIZE) - 2 * Chunk.CHUNK_SIZE, rand.nextInt(5 * Chunk.CHUNK_SIZE) - 2 * Chunk.CHUNK_SIZE));
+           ent.addEntityToTrack(player);
+            }
             ent.start();
             enemies.add(ent);
         }
@@ -213,7 +215,7 @@ public class Game extends InputAdapter implements Runnable {
             }
         }
 
-        if(e.getKeyCode() == KeyEvent.VK_ESCAPE){
+        if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
             System.exit(0);
         }
     }

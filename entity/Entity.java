@@ -7,6 +7,8 @@
 
 package entity;
 
+import world.World;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.geom.Point2D;
@@ -16,6 +18,8 @@ public abstract class Entity extends Thread {
     public static final int ANIMATION_TIME_LENGTH = 100;
     public static final int WALKING_ANIMATION_SIZE = 64;
     public static final int ATTACKING_ANIMATION_SIZE = 192;
+    public static final int TRACKING_SEARCH_DISTANCE = 5;
+    protected World world;
     protected Point2D position;
     protected EntityFacing facing;
     protected EntityAction action;
@@ -30,14 +34,15 @@ public abstract class Entity extends Thread {
 
 
 
-    public Entity(){
-        this(new Point(0, 0));
+    public Entity(World world){
+        this(world, new Point(0, 0));
     }
 
 
 
 
-    public Entity(Point position){
+    public Entity(World world, Point position){
+        this.world = world;
         facing = EntityFacing.Front;
         action = EntityAction.Standing;
         this.position = position;
