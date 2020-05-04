@@ -213,7 +213,7 @@ public class Game extends InputAdapter implements Runnable {
             }
         }
 
-        if(e.getKeyCode() == KeyEvent.VK_ESCAPE){
+        if(e.getKeyCode() == KeyEvent.VK_ESCAPE) {
             System.exit(0);
         }
     }
