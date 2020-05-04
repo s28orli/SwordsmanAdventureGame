@@ -48,6 +48,12 @@ public class OrcBoss extends Orc {
         gbi.fillRect(0, 0, hurtingImage.getWidth(), hurtingImage.getHeight());
     }
 
+    /**
+     * Draw the Orc Boss
+     * @param g Graphics object to draw to
+     * @param component JPanel to draw to.
+     * @param drawDebug boolean to draw debug info.
+     */
     @Override
     public void draw(Graphics g, JPanel component, boolean drawDebug) {
         Image img;

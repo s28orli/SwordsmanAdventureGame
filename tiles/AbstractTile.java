@@ -29,18 +29,34 @@ public abstract class AbstractTile {
         }
     }
 
+    /**
+     * Get the Tile's Id
+     * @return  Tile's Id
+     */
     public int getId() {
         return id;
     }
 
+    /**
+     * Get the Tile's name.
+     * @return Tile's name.
+     */
     public String getName() {
         return name;
     }
 
+    /**
+     * Get the Tile's Texture.
+     * @return Tile's Texture.
+     */
     public Image getTexture() {
         return texture;
     }
 
+    /**
+     * Get a string representation of the tile.
+     * @return String representation of the tile.
+     */
     @Override
     public String toString() {
         return name;

@@ -99,11 +99,22 @@ public class Orc extends Entity implements ITrackerEntity {
 
     }
 
+    /**
+     * Draw the Orc
+     * @param g Graphics object to draw to
+     * @param component JPanel to draw to.
+     */
     @Override
     public void draw(Graphics g, JPanel component) {
         draw(g, component, false);
     }
 
+    /**
+     * Draw the Orc
+     * @param g Graphics object to draw to
+     * @param component JPanel to draw to.
+     * @param drawDebug boolean to draw debug info.
+     */
     @Override
     public void draw(Graphics g, JPanel component, boolean drawDebug) {
         Image img;
@@ -156,7 +167,9 @@ public class Orc extends Entity implements ITrackerEntity {
         }
     }
 
-
+    /**
+     * Run to Orc
+     */
     @Override
     public void run() {
         int time = 0;
@@ -231,6 +244,10 @@ public class Orc extends Entity implements ITrackerEntity {
         }
     }
 
+    /**
+     * Update the Orc's targeting actions
+     * @param shouldMove should the orc move toward target
+     */
     private void updateTracking(boolean shouldMove) {
 
         if (currentScent == null) {
@@ -303,6 +320,10 @@ public class Orc extends Entity implements ITrackerEntity {
     }
 
 
+    /**
+     * Set the current action of Orc
+     * @param action New action
+     */
     @Override
     public void setAction(EntityAction action) {
         if (hurtingTime == -1 && this.action != EntityAction.Attacking) {
@@ -317,30 +338,49 @@ public class Orc extends Entity implements ITrackerEntity {
 
     }
 
+    /**
+     * Adds a new Entity that Orc will target
+     * @param entity targeted entity.
+     */
     @Override
     public void addEntityToTrack(ITrackableEntity entity) {
         trackedEntities.add(entity);
     }
 
+    /**
+     * Get the Orc's Largest attack Range
+     */
     @Override
     public double getAttackRangeMax() {
         return ATTACK_RANGE_MAX;
     }
 
+    /**
+     * Get the Orc's Smallest attack Range
+     */
     @Override
     public double getAttackRangeMin() {
         return ATTACK_RANGE_MIN;
     }
 
-
+    /**
+     * Uses a function to generate an action for Orc to do while not targeting entities.
+     * @param time Current Time
+     * @return Action for Orc to do
+     */
     private EntityAction idleFunction(int time) {
-        double val = Math.sin(time / idleActionFreqDenominator);
+        double val = Math.cos(time / idleActionFreqDenominator);
         if (val > 0) {
             return EntityAction.Walking;
         }
         return EntityAction.Standing;
     }
 
+    /**
+     * Uses a function to generate an walking direction for Orc to do while not targeting entities.
+     * @param time Current Time
+     * @return Direction for Orc to walk toward.
+     */
     private Vector getIdleStateWalkingDirection(int time) {
         double move = 0;
         double val = Math.sin(time / idleWalkFreqDenominator);

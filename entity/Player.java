@@ -21,8 +21,6 @@ import java.util.List;
 
 
 public class Player extends Entity implements ITrackableEntity {
-
-
     private int animationIndex;
     private boolean IsPlayerSwingingSword;
     Image walkingImage;
@@ -57,19 +55,21 @@ public class Player extends Entity implements ITrackableEntity {
         }
     }
 
+    /**
+     * Set a new position for player.
+     *
+     * @param position new position
+     */
     @Override
     public void setPosition(Point2D.Double position) {
         if (!IsPlayerSwingingSword)
             this.position = position;
     }
 
-
-    @Override
-    public void setFacing(EntityFacing facing) {
-        this.facing = facing;
-    }
-
-
+    /**
+     * Set new action for player
+     * @param action New action
+     */
     @Override
     public void setAction(EntityAction action) {
         if (!IsPlayerSwingingSword) {
@@ -81,6 +81,12 @@ public class Player extends Entity implements ITrackableEntity {
         }
     }
 
+    /**
+     * Draw the Player
+     * @param g Graphics object to draw to
+     * @param component JPanel to draw to.
+     * @param drawDebug boolean to draw debug info.
+     */
     public void draw(Graphics g, JPanel component, boolean drawDebug) {
         if (drawDebug) {
             int rad = 5;
@@ -142,11 +148,19 @@ public class Player extends Entity implements ITrackableEntity {
 
     }
 
+    /**
+     * Draw the Orc
+     * @param g Graphics object to draw to
+     * @param component JPanel to draw to.
+     */
     @Override
     public void draw(Graphics g, JPanel component) {
         draw(g, component, false);
     }
 
+    /**
+     * Run the player
+     */
     @Override
     public void run() {
         int time = 0;
@@ -179,6 +193,9 @@ public class Player extends Entity implements ITrackableEntity {
         }
     }
 
+    /**
+     * Update the scent trail by ticking all scent points, remove old Scent points, and add new one at current position.
+     */
     private synchronized void updateScentTrail() {
         Stack<ScentPoint> toRemove = new Stack<>();
         for (Point2D point : scentTrail.keySet()) {
@@ -201,12 +218,21 @@ public class Player extends Entity implements ITrackableEntity {
         world.addScent(pos, s);
     }
 
+    /**
+     * Get a list of all the scent points
+     * @return collection of all the scent points.
+     */
     @Override
     public Collection<ScentPoint> getScentPoints() {
         return scentTrail.values();
     }
 
 
+    /**
+     * Get a scent point at a position
+     * @param position Position for scent point.
+     * @return Scent point if it exists, null otherwise.
+     */
     @Override
     public synchronized ScentPoint getScentPoint(Point2D position) {
         Object[] t = scentTrail.values().toArray();

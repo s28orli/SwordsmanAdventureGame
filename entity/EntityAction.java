@@ -8,7 +8,7 @@
 package entity;
 
 /**
- * player.PlayerAction: Represents the action that player is engaged in.
+ * EntityAction: Represents the action that entity is engaged in.
  *
  * @author Samuil Orlioglu
  * @version 4/27/2020

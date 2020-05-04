@@ -28,6 +28,10 @@ public class World {
         scents = new HashMap<>();
     }
 
+    /**
+     * Generate a Chunk with Generator at offset.
+     * @param offset Offset of the Chunk.
+     */
     public void generateChunk(Point offset) {
         if (!chunks.containsKey(offset)) {
             Chunk chunk = new Chunk(offset);
@@ -41,16 +45,23 @@ public class World {
         }
     }
 
+    /**
+     * Draw the World.
+     * @param g Graphics to draw to.
+     * @param observer Image Observer.
+     */
     public void draw(Graphics g, ImageObserver observer) {
-
         draw(g, observer, false);
-
     }
 
+    /**
+     * Draw the World.
+     * @param g Graphics to draw to.
+     * @param observer Image Observer.
+     * @param drawDebug Should it Draw Debug.
+     */
     public void draw(Graphics g, ImageObserver observer, boolean drawDebug) {
-
         for (Point offset : chunks.keySet()) {
-
             for (int y = 0; y < Chunk.CHUNK_SIZE; y++) {
                 for (int x = 0; x < Chunk.CHUNK_SIZE; x++) {
                     Chunk c = chunks.get(offset);
@@ -70,18 +81,11 @@ public class World {
         }
     }
 
-    public AbstractTile getTileAtPosition(int x, int y) {
-        int offsetX = x / Chunk.CHUNK_SIZE;
-        int offsetY = y / Chunk.CHUNK_SIZE;
-        Point offset = new Point(offsetX, offsetY);
-        if (chunks.containsKey(offset)) {
-            Chunk c = chunks.get(offset);
-            Point pos = new Point(x % Chunk.CHUNK_SIZE, y % Chunk.CHUNK_SIZE);
-            return c.getTile(pos);
-        }
-        return null;
-    }
-
+    /**
+     * Get a Tile at a position.
+     * @param point Position of the tile.
+     * @return Tile at point
+     */
     public AbstractTile getTileAtPosition(Point point) {
         int x = point.x;
         int y = point.y;
@@ -96,6 +100,11 @@ public class World {
         return null;
     }
 
+    /**
+     * Get A Tile based of a double.
+     * @param val Value of Generator
+     * @return A tile at terrain.
+     */
     private AbstractTile getTileFromTerrainValue(double val) {
 
         int t = (int) (val * 5);
@@ -112,15 +121,29 @@ public class World {
         else return new StoneTile();
     }
 
+    /**
+     * Add a scent point at position.
+     * @param point Position of new Scent Point
+     * @param scentPoint Scent Point to add.
+     */
     public void addScent(Point2D point, ScentPoint scentPoint){
         scents.put(point, scentPoint);
     }
 
+    /**
+     * Add a scent point at position.
+     * @param point Position of new Scent Point that will be removed
+     */
     public void removeScent(Point2D point){
         if(scents.containsKey(point))
             scents.remove(point);
     }
 
+    /**
+     * Add a scent point at position.
+     * @param point Position
+     * @return The Scent Point at Position
+     */
     public ScentPoint getScent(Point2D point){
         if(scents.containsKey(point))
             return scents.get(point);

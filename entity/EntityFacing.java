@@ -1,11 +1,12 @@
 package entity;
 
 /**
- * player.PlayerFacing: Represents the player's texture facing.
+ * EntityFacing: Represents the player's texture facing.
  *
  * @author Samuil Orlioglu
  * @version 4/27/2020
  */
+
 
 public enum EntityFacing {
     Back(0), Left(1), Front(2), Right(3);
