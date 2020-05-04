@@ -32,7 +32,7 @@ public class Game extends InputAdapter implements Runnable {
     private JLabel numEnemiesLabel;
 
 
-    private boolean drawDebug = true;
+    private boolean drawDebug = false;
     private World world;
     private Rectangle panelBounds;
     private double zoom = 1;
@@ -66,7 +66,6 @@ public class Game extends InputAdapter implements Runnable {
 
                 if (g != null)
                     redraw(g);
-//                super.paintComponent(g);
 
 
             }
@@ -81,19 +80,16 @@ public class Game extends InputAdapter implements Runnable {
         for (int i = 0; i < 10; i++) {
             Orc ent;
             if (i % 5 == 0) {
-                ent = new OrcBoss(new Point(rand.nextInt(5 * Chunk.CHUNK_SIZE) - 2 * Chunk.CHUNK_SIZE, rand.nextInt(5 * Chunk.CHUNK_SIZE) - 2 * Chunk.CHUNK_SIZE), panel);
+                ent = new OrcBoss(world, new Point2D.Double(rand.nextInt(5 * Chunk.CHUNK_SIZE) - 2 * Chunk.CHUNK_SIZE, rand.nextInt(5 * Chunk.CHUNK_SIZE) - 2 * Chunk.CHUNK_SIZE), panel);
             } else
-                ent = new Orc(new Point(rand.nextInt(5 * Chunk.CHUNK_SIZE) - 2 * Chunk.CHUNK_SIZE, rand.nextInt(5 * Chunk.CHUNK_SIZE) - 2 * Chunk.CHUNK_SIZE), panel);
-                ent = new OrcBoss(world, new Point2D.Double(rand.nextInt(5 * Chunk.CHUNK_SIZE) - 2 * Chunk.CHUNK_SIZE, rand.nextInt(5 * Chunk.CHUNK_SIZE) - 2 * Chunk.CHUNK_SIZE));
-                ent.addEntityToTrack(player);
+                ent = new Orc(world, new Point2D.Double(rand.nextInt(5 * Chunk.CHUNK_SIZE) - 2 * Chunk.CHUNK_SIZE, rand.nextInt(5 * Chunk.CHUNK_SIZE) - 2 * Chunk.CHUNK_SIZE), panel);
+            ent.addEntityToTrack(player);
 
-            } else {
-                ent = new Orc(world, new Point2D.Double(rand.nextInt(5 * Chunk.CHUNK_SIZE) - 2 * Chunk.CHUNK_SIZE, rand.nextInt(5 * Chunk.CHUNK_SIZE) - 2 * Chunk.CHUNK_SIZE));
-                ent.addEntityToTrack(player);
-            }
             ent.start();
             enemies.add(ent);
         }
+
+
 
         mainLoop = new GameLoop(panel, player, enemies);
         mainLoop.start();

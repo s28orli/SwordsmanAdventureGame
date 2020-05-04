@@ -20,10 +20,9 @@ import java.io.IOException;
 
 public class OrcBoss extends Orc {
 
-    public OrcBoss(Point position, JPanel component) {
-        super(component);
-    public OrcBoss(World world, Point2D.Double position) {
-        super(world, position);
+
+    public OrcBoss(World world, Point2D.Double position, JPanel component) {
+        super(world, position, component);
         this.position = position;
         size = 2;
         File walkingFile = new File("Assets/Orc/Boss/OrcBossWalk.png");
@@ -45,15 +44,11 @@ public class OrcBoss extends Orc {
         gbi.setColor(Color.RED);
 
         gbi.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_ATOP, 0.5f));
-    public OrcBoss(World world){
-        this(world, new Point2D.Double(0, 0));
-    }
+
 
         gbi.fillRect(0, 0, hurtingImage.getWidth(), hurtingImage.getHeight());
     }
 
-    public OrcBoss(JPanel component) {
-        this(new Point(0, 0), component);
-    }
+
 
 }

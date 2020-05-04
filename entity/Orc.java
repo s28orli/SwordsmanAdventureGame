@@ -28,11 +28,9 @@ public class Orc extends Entity implements ITrackerEntity {
     }
 
     public static final double MOVEMENT_SPEED = 0.2;
-    protected Image walkingImage;
-    protected Image attackingImage;
-    BufferedImage walkingImage;
-    BufferedImage attackingImage;
-    BufferedImage hurtingImage;
+    protected BufferedImage walkingImage;
+    protected BufferedImage attackingImage;
+    protected BufferedImage hurtingImage;
     protected static final int HURTING_DURATION = 3;
     protected int hurtingTime = -1;
     protected int hurtingIndex = 0;
@@ -44,15 +42,12 @@ public class Orc extends Entity implements ITrackerEntity {
     protected ITrackableEntity currentTrackedEntity;
     protected TrackingType trackingType;
 
-    public Orc(JPanel component) {
-        this(new Point(0, 0), component);
-    public Orc(World world) {
-        this(world, new Point2D.Double(0, 0));
+
+    public Orc(World world, JPanel component) {
+        this(world, new Point2D.Double(0, 0), component);
     }
 
-    public Orc(Point position, JPanel component) {
-        super(position);
-    public Orc(World world, Point2D.Double position) {
+    public Orc(World world, Point2D.Double position, JPanel component) {
         super(world, position);
         trackedEntities = new ArrayList<>();
         size = 1.5;
@@ -146,7 +141,7 @@ public class Orc extends Entity implements ITrackerEntity {
         }
     }
 
-    }
+
 
     @Override
     public void run() {
@@ -265,7 +260,6 @@ public class Orc extends Entity implements ITrackerEntity {
             setAction(EntityAction.Walking);
         }
     }
-
 
 
     @Override

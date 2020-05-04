@@ -30,13 +30,11 @@ public class Player extends Entity implements ITrackableEntity {
     Font healthFont;
     HashMap<Point2D, ScentPoint> scentTrail;
 
-    public Player() {
-        super();
+    public Player(World world) {
+        super(world);
         healthFont = new Font("Comic Sans", Font.BOLD, 12);
 
         health = 100;
-    public Player(World world) {
-        super(world);
         scentTrail = new HashMap<Point2D, ScentPoint>();
         animationIndex = 0;
         size = 1;

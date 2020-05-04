@@ -33,16 +33,14 @@ public abstract class Entity extends Thread {
 
     public Entity(World world) {
         this(world, new Point2D.Double(0, 0));
+    }
+
     public int getHealth() {
         return health;
     }
 
     public void setHealth(int health) {
         this.health = health;
-    }
-
-    public Entity(){
-        this(new Point(0, 0));
     }
 
 
@@ -77,7 +75,7 @@ public abstract class Entity extends Thread {
         this.action = action;
     }
 
-    public boolean isCollision (Entity obj) {
+    public boolean isCollision(Entity obj) {
         if (position.distance(obj.position) < size * 3) {
             return true;
         }
