@@ -14,5 +14,5 @@ package entity;
  * @version 4/27/2020
  */
 public enum EntityAction {
-    Standing, Walking, Attacking
+    Standing, Walking, Attacking, Hurting
 }

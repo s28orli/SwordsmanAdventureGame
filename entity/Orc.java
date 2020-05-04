@@ -12,25 +12,30 @@ import tiles.AbstractTile;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 
 public class Orc extends Entity {
 
-    Image walkingImage;
-    Image attackingImage;
-
+    BufferedImage walkingImage;
+    BufferedImage attackingImage;
+    BufferedImage hurtingImage;
+    protected static final int HURTING_DURATION = 3;
+    protected int hurtingTime = -1;
+    protected int hurtingIndex = 0;
 
 
     int animationIndex;
 
-    public Orc(){
-        this(new Point(0, 0));
+    public Orc(JPanel component) {
+        this(new Point(0, 0), component);
     }
 
-    public Orc(Point position) {
+    public Orc(Point position, JPanel component) {
         super(position);
         size = 1.5;
+        health = 2;
         File walkingFile = new File("Assets/Orc/OrcWalk.png");
         File attackingFile = new File("Assets/Orc/OrcAttack.png");
 
@@ -44,12 +49,21 @@ public class Orc extends Entity {
             }
         }
 
+        hurtingImage = new BufferedImage(walkingImage.getWidth(), walkingImage.getHeight(), BufferedImage.TYPE_INT_ARGB);
+        Graphics2D gbi = hurtingImage.createGraphics();
+        gbi.drawImage(walkingImage, 0, 0, hurtingImage.getWidth(), hurtingImage.getHeight(), component);
+        gbi.setColor(Color.RED);
+
+        gbi.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_ATOP, 0.5f));
+
+        gbi.fillRect(0, 0, hurtingImage.getWidth(), hurtingImage.getHeight());
+
 
     }
 
     @Override
     public void draw(Graphics g, JPanel component) {
-        Image img;
+        BufferedImage img;
         int width = WALKING_ANIMATION_SIZE;
         if (action == EntityAction.Attacking) {
             img = attackingImage;
@@ -59,7 +73,7 @@ public class Orc extends Entity {
 
         int index = animationIndex;
 
-        if (action == EntityAction.Standing) {
+        if (action == EntityAction.Standing || action == EntityAction.Hurting) {
             index = 0;
         }
 
@@ -79,7 +93,15 @@ public class Orc extends Entity {
         int sdx = sx + width;
         int sdy = sy + width;
 
-        g.drawImage(img, x, y, dx, dy, sx, sy, sdx, sdy, component);
+
+        if (action == EntityAction.Hurting && hurtingIndex % 2 == 0) {
+            g.drawImage(hurtingImage, x, y, dx, dy, sx, sy, sdx, sdy, component);
+
+        } else {
+
+            g.drawImage(img, x, y, dx, dy, sx, sy, sdx, sdy, component);
+        }
+
     }
 
     @Override
@@ -105,9 +127,16 @@ public class Orc extends Entity {
                     action = EntityAction.Standing;
                 }
 
+                if (action == EntityAction.Hurting) {
+                    hurtingTime++;
+                    hurtingIndex++;
+                }
+                if (hurtingTime > HURTING_DURATION) {
+                    hurtingTime = -1;
+                    action = EntityAction.Standing;
+                    hurtingIndex = 0;
+                }
             }
-
-
         }
     }
 
@@ -116,6 +145,9 @@ public class Orc extends Entity {
         this.action = action;
         if (action == EntityAction.Attacking) {
             animationIndex = 0;
+        }
+        if (action == EntityAction.Hurting) {
+            hurtingTime = 0;
         }
 
     }

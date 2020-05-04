@@ -11,6 +11,7 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.Stack;
 
 /**
  * Class that represents the character the user will be controlling
@@ -26,6 +27,10 @@ public class Game extends InputAdapter implements Runnable {
     private final double MOVEMENT = 0.2;
     private Entity player;
     private GameLoop mainLoop;
+    private JLabel scoreLabel;
+    private JLabel healthLabel;
+    private JLabel numEnemiesLabel;
+
 
     private World world;
     private Rectangle panelBounds;
@@ -38,8 +43,6 @@ public class Game extends InputAdapter implements Runnable {
         enemies = new ArrayList<>(20);
         world = new World();
         panelBounds = new Rectangle(-WINDOW_LENGTH / 2, -WINDOW_HEIGHT / 2, WINDOW_LENGTH, WINDOW_HEIGHT);
-
-
         fillWindowWithChunks();
         // set up the GUI "look and feel" which should match
         // the OS on which we are running
@@ -54,47 +57,68 @@ public class Game extends InputAdapter implements Runnable {
         // window, the application should terminate
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
+        JPanel mainPanel = new JPanel(new BorderLayout());
         // JPanel with a paintComponent method
         panel = new JPanel() {
             @Override
             public void paintComponent(Graphics g) {
 
-                super.paintComponent(g);
                 if (g != null)
                     redraw(g);
+//                super.paintComponent(g);
+
+
             }
         };
-        mainLoop = new GameLoop(panel);
-        mainLoop.start();
+
 
         player = new Player();
         player.start();
-
         Random rand = new Random(0);
 
         for (int i = 0; i < 10; i++) {
             Entity ent;
             if (i % 5 == 0) {
-                ent = new OrcBoss(new Point(rand.nextInt(5 * Chunk.CHUNK_SIZE) - 2 * Chunk.CHUNK_SIZE, rand.nextInt(5 * Chunk.CHUNK_SIZE) - 2 * Chunk.CHUNK_SIZE));
+                ent = new OrcBoss(new Point(rand.nextInt(5 * Chunk.CHUNK_SIZE) - 2 * Chunk.CHUNK_SIZE, rand.nextInt(5 * Chunk.CHUNK_SIZE) - 2 * Chunk.CHUNK_SIZE), panel);
             } else
-                ent = new Orc(new Point(rand.nextInt(5 * Chunk.CHUNK_SIZE) - 2 * Chunk.CHUNK_SIZE, rand.nextInt(5 * Chunk.CHUNK_SIZE) - 2 * Chunk.CHUNK_SIZE));
+                ent = new Orc(new Point(rand.nextInt(5 * Chunk.CHUNK_SIZE) - 2 * Chunk.CHUNK_SIZE, rand.nextInt(5 * Chunk.CHUNK_SIZE) - 2 * Chunk.CHUNK_SIZE), panel);
             ent.start();
             enemies.add(ent);
         }
 
-        frame.add(panel);
+        mainLoop = new GameLoop(panel, player, enemies);
+        mainLoop.start();
+        frame.add(mainPanel);
+        mainPanel.add(panel, BorderLayout.CENTER);
+
+        scoreLabel = new JLabel("Score: " + mainLoop.getScore());
+        healthLabel = new JLabel("Health: " + player.getHealth());
+        numEnemiesLabel = new JLabel("Number of Enemies: " + enemies.size());
+        JPanel panel2 = new JPanel(new GridLayout(1, 4));
+        mainPanel.add(panel2, BorderLayout.NORTH);
+        panel2.add(scoreLabel);
+        panel2.add(healthLabel);
+        panel2.add(numEnemiesLabel);
+
+
         frame.addKeyListener(this);
         frame.addMouseListener(this);
 
         frame.pack();
         frame.setVisible(true);
+
     }
 
     private void redraw(Graphics g) {
+        scoreLabel.setText("Score: " + mainLoop.getScore());
+        healthLabel.setText("Health: " + player.getHealth());
+        numEnemiesLabel.setText("Number of Enemies: " + enemies.size());
+
         int width = (int) ((g.getClipBounds().width / 2) * zoom);
         int height = (int) ((g.getClipBounds().height / 2) * zoom);
 
         g.translate(-(int) (((player.getPosition().getX() * AbstractTile.TILE_SIZE) - width) * zoom), -(int) (((player.getPosition().getY() * AbstractTile.TILE_SIZE) - height) * zoom));
+
         panelBounds = g.getClipBounds();
         fillWindowWithChunks();
         world.draw(g, panel);
@@ -102,8 +126,8 @@ public class Game extends InputAdapter implements Runnable {
             enemy.draw(g, panel);
         }
         player.draw(g, panel);
-
-
+        g.setColor(Color.RED);
+        g.setFont(Font.getFont("Comic Sans"));
     }
 
     @Override
@@ -141,7 +165,6 @@ public class Game extends InputAdapter implements Runnable {
                 enemy.setAction(EntityAction.Standing);
                 enemy.setFacing(EntityFacing.Right);
             }
-
 
         } else if (e.getKeyCode() == KeyEvent.VK_M) {
             for (Entity enemy : enemies) {
@@ -213,7 +236,7 @@ public class Game extends InputAdapter implements Runnable {
             }
         }
 
-        if(e.getKeyCode() == KeyEvent.VK_ESCAPE) {
+        if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
             System.exit(0);
         }
     }
@@ -244,21 +267,47 @@ public class Game extends InputAdapter implements Runnable {
 class GameLoop extends Thread {
     JPanel panel;
     private static final int WAIT_TIME = 100;
+    private Entity player;
+    private List<Entity> enemies;
+    private int score;
 
-    public GameLoop(JPanel panel) {
+    public GameLoop(JPanel panel, Entity player, List<Entity> enemies) {
         this.panel = panel;
+        this.player = player;
+        this.enemies = enemies;
     }
 
     @Override
     public void run() {
+        Stack<Entity> toRemove = new Stack<>();
         while (true) {
             try {
                 sleep(WAIT_TIME);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
+
+            for (Entity i : enemies) {
+                if (player.isCollision(i) && i.getAction() == EntityAction.Attacking) {
+                    player.setHealth(player.getHealth() - 1);
+                } else if (player.isCollision(i) && player.getAction() == EntityAction.Attacking) {
+                    i.setHealth(i.getHealth() - 1);
+                    i.setAction(EntityAction.Hurting);
+                }
+                if (i.getHealth() <= 0) {
+                    score++;
+                    toRemove.push(i);
+                }
+            }
+            while (!toRemove.empty()) {
+                enemies.remove(toRemove.pop());
+            }
             panel.repaint();
 
         }
+    }
+
+    public int getScore() {
+        return score;
     }
 }

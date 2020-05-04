@@ -24,9 +24,13 @@ public class Player extends Entity {
     private boolean IsPlayerSwingingSword;
     Image walkingImage;
     Image attackingImage;
+    Font healthFont;
 
     public Player() {
         super();
+        healthFont = new Font("Comic Sans", Font.BOLD, 12);
+
+        health = 100;
         animationIndex = 0;
         size = 1;
         walkingImageCycle = 7;
@@ -104,9 +108,20 @@ public class Player extends Entity {
         int sy = facing.value * width;
         int sdx = sx + width;
         int sdy = sy + width;
+        g.setColor(Color.RED);
 
-
+        String healthString = health + "";
+        g.setFont(healthFont);
+        g.getFontMetrics().stringWidth(healthString);
+        int halfHealthString = g.getFontMetrics().stringWidth(healthString) / 2;
+        int halfXPos = (x + dx) / 2;
+        int healthStringXPos = halfXPos - halfHealthString;
+        int healthStringYPos = y;
+        if (action == EntityAction.Attacking) {
+            healthStringYPos = y + (int) ((ATTACKING_ANIMATION_SIZE / 3) * size);
+        }
         g.drawImage(img, x, y, dx, dy, sx, sy, sdx, sdy, component);
+        g.drawString(healthString, healthStringXPos, healthStringYPos);
 
     }
 
@@ -135,7 +150,6 @@ public class Player extends Entity {
                     IsPlayerSwingingSword = false;
                 }
             }
-
 
         }
     }
