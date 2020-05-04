@@ -27,9 +27,10 @@ public class Game extends InputAdapter implements Runnable {
     private final double MOVEMENT = 0.2;
     private Entity player;
     private GameLoop mainLoop;
-    int score = 0;
-    JLabel healthLabel = new JLabel("Health: 100");
-    JLabel scoreLabel = new JLabel("Score: " + score);
+    private JLabel scoreLabel;
+    private JLabel healthLabel;
+    private JLabel numEnemiesLabel;
+
 
     private World world;
     private Rectangle panelBounds;
@@ -42,7 +43,6 @@ public class Game extends InputAdapter implements Runnable {
         enemies = new ArrayList<>(20);
         world = new World();
         panelBounds = new Rectangle(-WINDOW_LENGTH / 2, -WINDOW_HEIGHT / 2, WINDOW_LENGTH, WINDOW_HEIGHT);
-
         fillWindowWithChunks();
         // set up the GUI "look and feel" which should match
         // the OS on which we are running
@@ -57,14 +57,16 @@ public class Game extends InputAdapter implements Runnable {
         // window, the application should terminate
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
+        JPanel mainPanel = new JPanel(new BorderLayout());
         // JPanel with a paintComponent method
         panel = new JPanel() {
             @Override
             public void paintComponent(Graphics g) {
 
-                super.paintComponent(g);
                 if (g != null)
                     redraw(g);
+//                super.paintComponent(g);
+
 
             }
         };
@@ -84,13 +86,21 @@ public class Game extends InputAdapter implements Runnable {
             enemies.add(ent);
         }
 
-        panel.add(healthLabel);
-        panel.add(scoreLabel);
-        healthLabel.setVisible(true);
         mainLoop = new GameLoop(panel, player, enemies);
         mainLoop.start();
+        frame.add(mainPanel);
+        mainPanel.add(panel, BorderLayout.CENTER);
 
-        frame.add(panel);
+        scoreLabel = new JLabel("Score: " + mainLoop.getScore());
+        healthLabel = new JLabel("Health: " + player.getHealth());
+        numEnemiesLabel = new JLabel("Number of Enemies: " + enemies.size());
+        JPanel panel2 = new JPanel(new GridLayout(1, 4));
+        mainPanel.add(panel2, BorderLayout.NORTH);
+        panel2.add(scoreLabel);
+        panel2.add(healthLabel);
+        panel2.add(numEnemiesLabel);
+
+
         frame.addKeyListener(this);
         frame.addMouseListener(this);
 
@@ -100,6 +110,10 @@ public class Game extends InputAdapter implements Runnable {
     }
 
     private void redraw(Graphics g) {
+        scoreLabel.setText("Score: " + mainLoop.getScore());
+        healthLabel.setText("Health: " + player.getHealth());
+        numEnemiesLabel.setText("Number of Enemies: " + enemies.size());
+
         int width = (int) ((g.getClipBounds().width / 2) * zoom);
         int height = (int) ((g.getClipBounds().height / 2) * zoom);
 
@@ -255,6 +269,7 @@ class GameLoop extends Thread {
     private static final int WAIT_TIME = 100;
     private Entity player;
     private List<Entity> enemies;
+    private int score;
 
     public GameLoop(JPanel panel, Entity player, List<Entity> enemies) {
         this.panel = panel;
@@ -280,7 +295,7 @@ class GameLoop extends Thread {
                     i.setAction(EntityAction.Hurting);
                 }
                 if (i.getHealth() <= 0) {
-
+                    score++;
                     toRemove.push(i);
                 }
             }
@@ -290,5 +305,9 @@ class GameLoop extends Thread {
             panel.repaint();
 
         }
+    }
+
+    public int getScore() {
+        return score;
     }
 }

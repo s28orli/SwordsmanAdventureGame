@@ -110,7 +110,7 @@ public class Player extends Entity {
         int sdy = sy + width;
         g.setColor(Color.RED);
 
-        String healthString = "Health: " + health;
+        String healthString = health + "";
         g.setFont(healthFont);
         g.getFontMetrics().stringWidth(healthString);
         int halfHealthString = g.getFontMetrics().stringWidth(healthString) / 2;

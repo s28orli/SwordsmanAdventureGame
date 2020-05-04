@@ -7,8 +7,6 @@
 
 package entity;
 
-import tiles.AbstractTile;
-
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;

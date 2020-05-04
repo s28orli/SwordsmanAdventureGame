@@ -35,7 +35,7 @@ public class Orc extends Entity {
     public Orc(Point position, JPanel component) {
         super(position);
         size = 1.5;
-        health = 100;
+        health = 2;
         File walkingFile = new File("Assets/Orc/OrcWalk.png");
         File attackingFile = new File("Assets/Orc/OrcAttack.png");
 
