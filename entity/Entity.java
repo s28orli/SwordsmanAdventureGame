@@ -9,6 +9,7 @@ package entity;
 
 import tiles.AbstractTile;
 
+import util.Vector;
 import world.World;
 
 import javax.swing.*;
@@ -26,6 +27,7 @@ public abstract class Entity extends Thread {
     protected EntityFacing facing;
     protected EntityAction action;
     protected int health;
+    protected int damage;
     protected double size = 1;
     protected int attackingImageCycle = 7;
     protected int walkingImageCycle = 7;
@@ -82,8 +84,51 @@ public abstract class Entity extends Thread {
         return false;
     }
 
+    public boolean isCollision(ITrackableEntity obj) {
+        if (position.distance(obj.getPosition()) < size * 3) {
+            return true;
+        }
+        return false;
+    }
+
     public abstract void draw(Graphics g, JPanel component);
 
     public abstract void draw(Graphics g, JPanel component, boolean drawDebug);
 
+    public static EntityFacing getFacingFromVector(Vector vec) {
+        if (vec.getX() < 0 && vec.getY() == 0) {
+            return EntityFacing.Left;
+        }
+        if (vec.getX() > 0 && vec.getY() == 0) {
+            return EntityFacing.Right;
+        }
+
+        if (vec.getX() == 0 && vec.getY() > 0) {
+            return EntityFacing.Front;
+        }
+        if (vec.getX() == 0 && vec.getY() < 0) {
+            return EntityFacing.Back;
+        }
+        return null;
+    }
+
+    public World getWorld() {
+        return world;
+    }
+
+    public int getDamage() {
+        return damage;
+    }
+
+    public double getSize() {
+        return size;
+    }
+
+    public void setDamage(int damage) {
+        this.damage = damage;
+    }
+
+    public void setSize(double size) {
+        this.size = size;
+    }
 }

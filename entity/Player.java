@@ -35,6 +35,7 @@ public class Player extends Entity implements ITrackableEntity {
         healthFont = new Font("Comic Sans", Font.BOLD, 12);
 
         health = 100;
+        damage = 8;
         scentTrail = new HashMap<Point2D, ScentPoint>();
         animationIndex = 0;
         size = 1;

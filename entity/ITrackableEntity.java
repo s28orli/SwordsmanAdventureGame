@@ -9,4 +9,6 @@ public interface ITrackableEntity {
 
     ScentPoint getScentPoint(Point2D position);
 
+    Point2D getPosition();
+
 }

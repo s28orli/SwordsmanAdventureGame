@@ -8,15 +8,13 @@ import java.awt.geom.Point2D;
 import java.awt.event.*;
 import javax.swing.*;
 import java.io.*;
-import java.util.ArrayList;
+import java.util.*;
 import java.util.List;
-import java.util.Random;
-import java.util.Stack;
 
 /**
- * Class that represents the character the user will be controlling
+ * Class that represents the game. It uses Java AWT.
  *
- * @author Manny Lo
+ * @author Manny Lo and Samuil Orlioglu
  * @version Spring 2020
  */
 public class Game extends InputAdapter implements Runnable {
@@ -32,7 +30,7 @@ public class Game extends InputAdapter implements Runnable {
     private JLabel numEnemiesLabel;
 
 
-    private boolean drawDebug = false;
+    private boolean drawDebug = true;
     private World world;
     private Rectangle panelBounds;
     private double zoom = 1;
@@ -77,7 +75,7 @@ public class Game extends InputAdapter implements Runnable {
 
         Random rand = new Random(0);
 
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 1; i++) {
             Orc ent;
             if (i % 5 == 0) {
                 ent = new OrcBoss(world, new Point2D.Double(rand.nextInt(5 * Chunk.CHUNK_SIZE) - 2 * Chunk.CHUNK_SIZE, rand.nextInt(5 * Chunk.CHUNK_SIZE) - 2 * Chunk.CHUNK_SIZE), panel);
@@ -88,7 +86,6 @@ public class Game extends InputAdapter implements Runnable {
             ent.start();
             enemies.add(ent);
         }
-
 
 
         mainLoop = new GameLoop(panel, player, enemies);
@@ -288,6 +285,10 @@ class GameLoop extends Thread {
     @Override
     public void run() {
         Stack<Entity> toRemove = new Stack<>();
+        HashMap<Entity, EntityAction> previousActions = new HashMap<>();
+        for (Entity i : enemies) {
+            previousActions.put(i, i.getAction());
+        }
         while (true) {
             try {
                 sleep(WAIT_TIME);
@@ -296,19 +297,22 @@ class GameLoop extends Thread {
             }
 
             for (Entity i : enemies) {
-                if (player.isCollision(i) && i.getAction() == EntityAction.Attacking) {
-                    player.setHealth(player.getHealth() - 1);
+                if (player.isCollision(i) && i.getAction() == EntityAction.Attacking && previousActions.get(i) != EntityAction.Attacking) {
+                    player.setHealth(player.getHealth() - i.getDamage());
                 } else if (player.isCollision(i) && player.getAction() == EntityAction.Attacking) {
-                    i.setHealth(i.getHealth() - 1);
+                    i.setHealth(i.getHealth() - player.getDamage());
                     i.setAction(EntityAction.Hurting);
                 }
                 if (i.getHealth() <= 0) {
                     score++;
                     toRemove.push(i);
                 }
+                previousActions.put(i, i.getAction());
             }
             while (!toRemove.empty()) {
-                enemies.remove(toRemove.pop());
+                Entity removeEntity = toRemove.pop();
+                enemies.remove(removeEntity);
+                previousActions.remove(removeEntity);
             }
             panel.repaint();
 

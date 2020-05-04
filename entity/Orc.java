@@ -27,7 +27,9 @@ public class Orc extends Entity implements ITrackerEntity {
         LeftRight, FrontBack
     }
 
+
     public static final double MOVEMENT_SPEED = 0.2;
+    public static final double TARGET_DETECTION_RANGE = 5;
     protected BufferedImage walkingImage;
     protected BufferedImage attackingImage;
     protected BufferedImage hurtingImage;
@@ -41,6 +43,8 @@ public class Orc extends Entity implements ITrackerEntity {
     protected ScentPoint currentScent;
     protected ITrackableEntity currentTrackedEntity;
     protected TrackingType trackingType;
+    protected double idleWalkFreqDenominator;
+    protected double idleActionFreqDenominator;
 
 
     public Orc(World world, JPanel component) {
@@ -51,7 +55,8 @@ public class Orc extends Entity implements ITrackerEntity {
         super(world, position);
         trackedEntities = new ArrayList<>();
         size = 1.5;
-        health = 2;
+        health = 120;
+        damage = 5;
         Random random = new Random();
         switch (random.nextInt(2)) {
             case 0:
@@ -61,6 +66,10 @@ public class Orc extends Entity implements ITrackerEntity {
                 trackingType = TrackingType.LeftRight;
                 break;
         }
+
+        idleWalkFreqDenominator = random.nextDouble() * random.nextInt(10) + 10;
+        idleActionFreqDenominator = random.nextDouble() * random.nextInt(10) + 5;
+
         File walkingFile = new File("Assets/Orc/OrcWalk.png");
         File attackingFile = new File("Assets/Orc/OrcAttack.png");
 
@@ -132,7 +141,6 @@ public class Orc extends Entity implements ITrackerEntity {
 
             g.drawImage(img, x, y, dx, dy, sx, sy, sdx, sdy, component);
         }
-        g.drawImage(img, x, y, dx, dy, sx, sy, sdx, sdy, component);
         if (drawDebug) {
             if (currentScent != null) {
                 g.setColor(Color.CYAN);
@@ -142,18 +150,36 @@ public class Orc extends Entity implements ITrackerEntity {
     }
 
 
-
     @Override
     public void run() {
         int time = 0;
+        int idleTime = 0;
         while (true) {
             try {
                 sleep(TIME_DELAY);
                 time += TIME_DELAY;
+                idleTime++;
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
+
             updateTracking();
+
+            // If not tracking anyone
+            if (currentTrackedEntity == null) {
+                action = idleFunction(idleTime);
+                if (action == EntityAction.Walking) {
+                    Vector dir = getIdleStateWalkingDirection(idleTime);
+                    position = new Point2D.Double(position.getX() + dir.getX(), position.getY() + dir.getY());
+                    facing = Entity.getFacingFromVector(dir);
+                }
+            }
+            // If tracker someone and colliding with them, then attack.
+            else {
+                if (isCollision(currentTrackedEntity)) ;
+                setAction(EntityAction.Attacking);
+            }
+            // Make sure animations are not lasting too long
             if ((double) (time) / ANIMATION_TIME_LENGTH > 1) {
                 time = 0;
                 animationIndex += 1;
@@ -186,13 +212,19 @@ public class Orc extends Entity implements ITrackerEntity {
 
         if (currentScent == null) {
 
-            if (trackedEntities.size() > 0) {
-                currentTrackedEntity = trackedEntities.get(0);
-            } else {
+            for (ITrackableEntity ent : trackedEntities) {
+                if (ent.getPosition().distance(position) < TARGET_DETECTION_RANGE) {
+                    currentTrackedEntity = ent;
+                }
+            }
+            if (currentTrackedEntity == null) {
                 return;
             }
+
+
             double minimumDistance = Double.MAX_VALUE;
-            for (ScentPoint scent : currentTrackedEntity.getScentPoints()) {
+            for (Object obj : currentTrackedEntity.getScentPoints().toArray()) {
+                ScentPoint scent = (ScentPoint) obj;
                 double dist = position.distance(scent.getPosition());
                 if (dist < minimumDistance) {
                     minimumDistance = dist;
@@ -264,12 +296,14 @@ public class Orc extends Entity implements ITrackerEntity {
 
     @Override
     public void setAction(EntityAction action) {
-        this.action = action;
-        if (action == EntityAction.Attacking) {
-            animationIndex = 0;
-        }
-        if (action == EntityAction.Hurting) {
-            hurtingTime = 0;
+        if (hurtingTime == -1) {
+            this.action = action;
+            if (action == EntityAction.Attacking) {
+                animationIndex = 0;
+            }
+            if (action == EntityAction.Hurting) {
+                hurtingTime = 0;
+            }
         }
 
     }
@@ -278,4 +312,27 @@ public class Orc extends Entity implements ITrackerEntity {
     public void addEntityToTrack(ITrackableEntity entity) {
         trackedEntities.add(entity);
     }
+
+    private EntityAction idleFunction(int time) {
+        double val = Math.sin(time / idleActionFreqDenominator);
+        if (val > 0) {
+            return EntityAction.Walking;
+        }
+        return EntityAction.Standing;
+    }
+
+    private Vector getIdleStateWalkingDirection(int time) {
+        double move = 0;
+        double val = Math.sin(time / idleWalkFreqDenominator);
+        if (val < 0) {
+            move = -MOVEMENT_SPEED;
+        } else if (val >= 0) {
+            move = MOVEMENT_SPEED;
+        }
+        if (trackingType == TrackingType.FrontBack) {
+            return new Vector(0, move);
+        } else return new Vector(move, 0);
+    }
+
+
 }
