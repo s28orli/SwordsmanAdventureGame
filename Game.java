@@ -25,13 +25,14 @@ public class Game extends InputAdapter implements Runnable {
     private final int WINDOW_HEIGHT = 800;
     private final int WINDOW_LENGTH = 900;
     private final double MOVEMENT = 0.2;
-    private Entity player;
+    private Player player;
     private GameLoop mainLoop;
     private JLabel scoreLabel;
     private JLabel healthLabel;
     private JLabel numEnemiesLabel;
 
 
+    private boolean drawDebug = true;
     private World world;
     private Rectangle panelBounds;
     private double zoom = 1;
@@ -72,16 +73,24 @@ public class Game extends InputAdapter implements Runnable {
         };
 
 
-        player = new Player();
+        player = new Player(world);
         player.start();
+
         Random rand = new Random(0);
 
         for (int i = 0; i < 10; i++) {
-            Entity ent;
+            Orc ent;
             if (i % 5 == 0) {
                 ent = new OrcBoss(new Point(rand.nextInt(5 * Chunk.CHUNK_SIZE) - 2 * Chunk.CHUNK_SIZE, rand.nextInt(5 * Chunk.CHUNK_SIZE) - 2 * Chunk.CHUNK_SIZE), panel);
             } else
                 ent = new Orc(new Point(rand.nextInt(5 * Chunk.CHUNK_SIZE) - 2 * Chunk.CHUNK_SIZE, rand.nextInt(5 * Chunk.CHUNK_SIZE) - 2 * Chunk.CHUNK_SIZE), panel);
+                ent = new OrcBoss(world, new Point2D.Double(rand.nextInt(5 * Chunk.CHUNK_SIZE) - 2 * Chunk.CHUNK_SIZE, rand.nextInt(5 * Chunk.CHUNK_SIZE) - 2 * Chunk.CHUNK_SIZE));
+                ent.addEntityToTrack(player);
+
+            } else {
+                ent = new Orc(world, new Point2D.Double(rand.nextInt(5 * Chunk.CHUNK_SIZE) - 2 * Chunk.CHUNK_SIZE, rand.nextInt(5 * Chunk.CHUNK_SIZE) - 2 * Chunk.CHUNK_SIZE));
+                ent.addEntityToTrack(player);
+            }
             ent.start();
             enemies.add(ent);
         }
@@ -121,13 +130,16 @@ public class Game extends InputAdapter implements Runnable {
 
         panelBounds = g.getClipBounds();
         fillWindowWithChunks();
-        world.draw(g, panel);
+        world.draw(g, panel, drawDebug);
         for (Entity enemy : enemies) {
-            enemy.draw(g, panel);
+            enemy.draw(g, panel, drawDebug);
         }
         player.draw(g, panel);
         g.setColor(Color.RED);
         g.setFont(Font.getFont("Comic Sans"));
+        player.draw(g, panel, drawDebug);
+
+
     }
 
     @Override

@@ -7,10 +7,12 @@
 
 package world;
 
+import entity.ScentPoint;
 import generation.*;
 import tiles.*;
 
 import java.awt.*;
+import java.awt.geom.Point2D;
 import java.awt.image.ImageObserver;
 import java.util.HashMap;
 
@@ -18,11 +20,12 @@ import java.util.HashMap;
 public class World {
     private HashMap<Point, Chunk> chunks;
     private IGenerator generator;
+    private HashMap<Point2D, ScentPoint> scents;
 
     public World() {
         chunks = new HashMap<>();
         generator = new PerlinGenerator(3, 40, 70, .01);
-
+        scents = new HashMap<>();
     }
 
     public void generateChunk(Point offset) {
@@ -40,14 +43,28 @@ public class World {
 
     public void draw(Graphics g, ImageObserver observer) {
 
+        draw(g, observer, false);
+
+    }
+
+    public void draw(Graphics g, ImageObserver observer, boolean drawDebug) {
+
         for (Point offset : chunks.keySet()) {
 
             for (int y = 0; y < Chunk.CHUNK_SIZE; y++) {
                 for (int x = 0; x < Chunk.CHUNK_SIZE; x++) {
-                    AbstractTile t = chunks.get(offset).getTile(new Point(x, y));
+                    Chunk c = chunks.get(offset);
+
+                    AbstractTile t = c.getTile(new Point(x, y));
                     if (t != null)
                         g.drawImage(t.getTexture(), (offset.x * Chunk.CHUNK_SIZE + x) * AbstractTile.TILE_SIZE, (offset.y * Chunk.CHUNK_SIZE + y) * AbstractTile.TILE_SIZE, AbstractTile.TILE_SIZE, AbstractTile.TILE_SIZE, observer);
 
+                    if(drawDebug){
+                        g.setColor(Color.RED);
+                        g.drawLine(offset.x * Chunk.CHUNK_SIZE * AbstractTile.TILE_SIZE, offset.y * Chunk.CHUNK_SIZE * AbstractTile.TILE_SIZE, (offset.x + 1) * Chunk.CHUNK_SIZE * AbstractTile.TILE_SIZE, offset.y * Chunk.CHUNK_SIZE * AbstractTile.TILE_SIZE);
+                        g.drawLine(offset.x * Chunk.CHUNK_SIZE * AbstractTile.TILE_SIZE, offset.y * Chunk.CHUNK_SIZE * AbstractTile.TILE_SIZE, offset.x * Chunk.CHUNK_SIZE * AbstractTile.TILE_SIZE, (offset.y + 1) * Chunk.CHUNK_SIZE * AbstractTile.TILE_SIZE);
+
+                    }
                 }
             }
         }
@@ -93,5 +110,20 @@ public class World {
             return new DirtTile();
         }
         else return new StoneTile();
+    }
+
+    public void addScent(Point2D point, ScentPoint scentPoint){
+        scents.put(point, scentPoint);
+    }
+
+    public void removeScent(Point2D point){
+        if(scents.containsKey(point))
+            scents.remove(point);
+    }
+
+    public ScentPoint getScent(Point2D point){
+        if(scents.containsKey(point))
+            return scents.get(point);
+        return null;
     }
 }

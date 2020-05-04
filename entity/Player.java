@@ -1,6 +1,7 @@
 package entity;
 
 import tiles.AbstractTile;
+import world.World;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -8,6 +9,8 @@ import java.awt.*;
 import java.awt.geom.Point2D;
 import java.io.File;
 import java.io.IOException;
+import java.util.*;
+import java.util.List;
 
 /**
  * Player: Player class that manages animations and player actions
@@ -17,7 +20,7 @@ import java.io.IOException;
  */
 
 
-public class Player extends Entity {
+public class Player extends Entity implements ITrackableEntity {
 
 
     private int animationIndex;
@@ -25,12 +28,16 @@ public class Player extends Entity {
     Image walkingImage;
     Image attackingImage;
     Font healthFont;
+    HashMap<Point2D, ScentPoint> scentTrail;
 
     public Player() {
         super();
         healthFont = new Font("Comic Sans", Font.BOLD, 12);
 
         health = 100;
+    public Player(World world) {
+        super(world);
+        scentTrail = new HashMap<Point2D, ScentPoint>();
         animationIndex = 0;
         size = 1;
         walkingImageCycle = 7;
@@ -52,7 +59,7 @@ public class Player extends Entity {
     }
 
     @Override
-    public void setPosition(Point2D position) {
+    public void setPosition(Point2D.Double position) {
         if (!IsPlayerSwingingSword)
             this.position = position;
     }
@@ -75,7 +82,17 @@ public class Player extends Entity {
         }
     }
 
-    public void draw(Graphics g, JPanel component) {
+    public void draw(Graphics g, JPanel component, boolean drawDebug) {
+        if (drawDebug) {
+            int rad = 5;
+            g.setColor(Color.RED);
+            Object[] t = scentTrail.values().toArray();
+            for (Object obj : t) {
+                ScentPoint point = (ScentPoint) obj;
+                g.fillOval((int) (point.getPosition().getX() * AbstractTile.TILE_SIZE) - rad, (int) (point.getPosition().getY() * AbstractTile.TILE_SIZE) - rad, rad * 2, rad * 2);
+            }
+        }
+
 
         Image img;
         int width;
@@ -123,6 +140,12 @@ public class Player extends Entity {
         g.drawImage(img, x, y, dx, dy, sx, sy, sdx, sdy, component);
         g.drawString(healthString, healthStringXPos, healthStringYPos);
 
+
+    }
+
+    @Override
+    public void draw(Graphics g, JPanel component) {
+        draw(g, component, false);
     }
 
     @Override
@@ -135,6 +158,8 @@ public class Player extends Entity {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
+
+            updateScentTrail();
             if ((double) (time) / ANIMATION_TIME_LENGTH > 1) {
                 time = 0;
                 animationIndex += 1;
@@ -151,6 +176,48 @@ public class Player extends Entity {
                 }
             }
 
+
         }
+    }
+
+    private synchronized void updateScentTrail() {
+        Stack<ScentPoint> toRemove = new Stack<>();
+        for (Point2D point : scentTrail.keySet()) {
+            scentTrail.get(point).tick();
+            if (scentTrail.get(point).getLife() <= 0) {
+                toRemove.push(scentTrail.get(point));
+            }
+        }
+
+        while (!toRemove.empty()) {
+            ScentPoint p = toRemove.pop();
+            scentTrail.remove(p.getPosition());
+            world.removeScent(p.getPosition());
+
+        }
+
+        Point2D pos = new Point((int) position.getX(), (int) position.getY());
+        ScentPoint s = new ScentPoint(pos, 200, this);
+        scentTrail.put(pos, s);
+        world.addScent(pos, s);
+    }
+
+    @Override
+    public Collection<ScentPoint> getScentPoints() {
+        return scentTrail.values();
+    }
+
+
+
+    @Override
+    public synchronized ScentPoint getScentPoint(Point2D position) {
+        Object[] t = scentTrail.values().toArray();
+        for (Object obj : t) {
+            ScentPoint point = (ScentPoint) obj;
+            if (point.getPosition().equals(position)) {
+                return point;
+            }
+        }
+        return null;
     }
 }
