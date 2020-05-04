@@ -9,6 +9,7 @@ package entity;
 
 import tiles.AbstractTile;
 
+import util.MathHelper;
 import util.Vector;
 import world.World;
 
@@ -130,5 +131,40 @@ public abstract class Entity extends Thread {
 
     public void setSize(double size) {
         this.size = size;
+    }
+
+    public boolean isFacingEntity(Entity entity){
+        if(facing == EntityFacing.Left && Math.abs(entity.getPosition().getY()- position.getY()) <= MathHelper.EPSILON && entity.getPosition().getX() <= position.getX()){
+            return true;
+        }
+        else if(facing == EntityFacing.Right && Math.abs(entity.getPosition().getY() - position.getY()) <= MathHelper.EPSILON && entity.getPosition().getX() >= position.getX()){
+            return true;
+        }
+
+        else if(facing == EntityFacing.Back && entity.getPosition().getY() >= position.getY() && Math.abs(entity.getPosition().getX() - position.getX()) <= MathHelper.EPSILON){
+            return true;
+        }
+        else if(facing == EntityFacing.Front && entity.getPosition().getY() <= position.getY() && Math.abs(entity.getPosition().getX() - position.getX()) <= MathHelper.EPSILON){
+            return true;
+        }
+        return false;
+    }
+
+    public boolean isFacingEntity(ITrackableEntity entity){
+        if(facing == EntityFacing.Left && Math.abs(entity.getPosition().getY()- position.getY()) <= MathHelper.EPSILON && entity.getPosition().getX() <= position.getX()){
+            return true;
+        }
+        else if(facing == EntityFacing.Right && Math.abs(entity.getPosition().getY() - position.getY()) <= MathHelper.EPSILON && entity.getPosition().getX() >= position.getX()){
+            return true;
+        }
+
+        else if(facing == EntityFacing.Back && entity.getPosition().getY() >= position.getY() && Math.abs(entity.getPosition().getX() - position.getX()) <= MathHelper.EPSILON){
+            return true;
+        }
+        else if(facing == EntityFacing.Front && entity.getPosition().getY() <= position.getY() && Math.abs(entity.getPosition().getX() - position.getX()) <= MathHelper.EPSILON){
+
+            return true;
+        }
+        return false;
     }
 }

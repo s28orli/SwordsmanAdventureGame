@@ -90,15 +90,11 @@ public class OrcBoss extends Orc {
 
             g.drawImage(img, x, y, dx, dy, sx, sy, sdx, sdy, component);
         }
-//        g.drawImage(img, x, y, dx, dy, sx, sy, sdx, sdy, component);
         if (drawDebug) {
-            if (currentScent != null) {
-                g.setColor(Color.CYAN);
-                g.drawLine((int) (position.getX() * AbstractTile.TILE_SIZE), (int) (position.getY() * AbstractTile.TILE_SIZE), (int) (currentScent.getPosition().getX() * AbstractTile.TILE_SIZE), (int) (currentScent.getPosition().getY() * AbstractTile.TILE_SIZE));
-            }
+            drawDebugInfo(g);
         }
-    }
 
+    }
 
 
 }

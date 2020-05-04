@@ -28,12 +28,16 @@ public class Orc extends Entity implements ITrackerEntity {
     }
 
 
-    public static final double MOVEMENT_SPEED = 0.2;
-    public static final double TARGET_DETECTION_RANGE = 5;
+    public static final double MOVEMENT_SPEED = 0.3;
+    public static final double TARGET_DETECTION_RANGE = 10;
+    public static final double ATTACK_RANGE_MIN = 1;
+    public static final double ATTACK_RANGE_MAX = 3;
+    protected static final int HURTING_DURATION = 3;
+    protected static final int TARGET_ESCAPE_RANGE = 30;
+
     protected BufferedImage walkingImage;
     protected BufferedImage attackingImage;
     protected BufferedImage hurtingImage;
-    protected static final int HURTING_DURATION = 3;
     protected int hurtingTime = -1;
     protected int hurtingIndex = 0;
 
@@ -97,7 +101,6 @@ public class Orc extends Entity implements ITrackerEntity {
 
     @Override
     public void draw(Graphics g, JPanel component) {
-        BufferedImage img;
         draw(g, component, false);
     }
 
@@ -142,10 +145,14 @@ public class Orc extends Entity implements ITrackerEntity {
             g.drawImage(img, x, y, dx, dy, sx, sy, sdx, sdy, component);
         }
         if (drawDebug) {
-            if (currentScent != null) {
-                g.setColor(Color.CYAN);
-                g.drawLine((int) (position.getX() * AbstractTile.TILE_SIZE), (int) (position.getY() * AbstractTile.TILE_SIZE), (int) (currentScent.getPosition().getX() * AbstractTile.TILE_SIZE), (int) (currentScent.getPosition().getY() * AbstractTile.TILE_SIZE));
-            }
+            drawDebugInfo(g);
+        }
+    }
+
+    protected void drawDebugInfo(Graphics g) {
+        if (currentTrackedEntity != null) {
+            g.setColor(Color.CYAN);
+            g.drawLine((int) (position.getX() * AbstractTile.TILE_SIZE), (int) (position.getY() * AbstractTile.TILE_SIZE), (int) (currentTrackedEntity.getPosition().getX() * AbstractTile.TILE_SIZE), (int) (currentTrackedEntity.getPosition().getY() * AbstractTile.TILE_SIZE));
         }
     }
 
@@ -154,6 +161,7 @@ public class Orc extends Entity implements ITrackerEntity {
     public void run() {
         int time = 0;
         int idleTime = 0;
+        int trackTimeout = 0;
         while (true) {
             try {
                 sleep(TIME_DELAY);
@@ -163,8 +171,11 @@ public class Orc extends Entity implements ITrackerEntity {
                 e.printStackTrace();
             }
 
-            updateTracking();
+            updateTracking(trackTimeout == 0);
 
+            if (trackTimeout > 0) {
+                trackTimeout--;
+            }
             // If not tracking anyone
             if (currentTrackedEntity == null) {
                 action = idleFunction(idleTime);
@@ -173,11 +184,23 @@ public class Orc extends Entity implements ITrackerEntity {
                     position = new Point2D.Double(position.getX() + dir.getX(), position.getY() + dir.getY());
                     facing = Entity.getFacingFromVector(dir);
                 }
-            }
-            // If tracker someone and colliding with them, then attack.
-            else {
-                if (isCollision(currentTrackedEntity)) ;
-                setAction(EntityAction.Attacking);
+            } else {
+                // If target is out of range, ignore it
+                if (currentTrackedEntity.getPosition().distance(position) > TARGET_ESCAPE_RANGE) {
+                    currentTrackedEntity = null;
+                } else
+                    // If tracking someone and colliding with them, then attack.
+                    if (isFacingEntity(currentTrackedEntity)) {
+                        double distance = position.distance(currentTrackedEntity.getPosition());
+                        if (distance > getAttackRangeMin() && distance <= getAttackRangeMax()) {
+                            setAction(EntityAction.Attacking);
+                        } else if (distance < getAttackRangeMin()) { // Give player some time to escape a pile up.
+                            setAction(EntityAction.Standing);
+                            trackTimeout = 10;
+
+                        }
+
+                    }
             }
             // Make sure animations are not lasting too long
             if ((double) (time) / ANIMATION_TIME_LENGTH > 1) {
@@ -208,7 +231,7 @@ public class Orc extends Entity implements ITrackerEntity {
         }
     }
 
-    private void updateTracking() {
+    private void updateTracking(boolean shouldMove) {
 
         if (currentScent == null) {
 
@@ -222,81 +245,82 @@ public class Orc extends Entity implements ITrackerEntity {
             }
 
 
-            double minimumDistance = Double.MAX_VALUE;
-            for (Object obj : currentTrackedEntity.getScentPoints().toArray()) {
-                ScentPoint scent = (ScentPoint) obj;
-                double dist = position.distance(scent.getPosition());
-                if (dist < minimumDistance) {
-                    minimumDistance = dist;
-                    currentScent = scent;
-                }
-            }
-        } else {
-            loop1:
-            for (int i = -TRACKING_SEARCH_DISTANCE; i <= TRACKING_SEARCH_DISTANCE; i++) {
-                loop2:
-                for (Point2D cons : MathHelper.consecutiveCoords) {
-                    Point2D p = MathHelper.mult(cons, i);
-                    Point2D pos = new Point2D.Double(p.getX() + currentScent.getPosition().getX(), p.getY() + currentScent.getPosition().getY());
-                    ScentPoint scentPoint = currentTrackedEntity.getScentPoint(pos);
-                    if (scentPoint != null) {
-                        if (scentPoint.getLife() >= currentScent.getLife()) {
-                            currentScent = scentPoint;
-                            break loop1;
-                        }
-                    }
-                }
-            }
+//            double minimumDistance = Double.MAX_VALUE;
+//            for (Object obj : currentTrackedEntity.getScentPoints().toArray()) {
+//                ScentPoint scent = (ScentPoint) obj;
+//                double dist = position.distance(scent.getPosition());
+//                if (dist < minimumDistance) {
+//                    minimumDistance = dist;
+//                    currentScent = scent;
+//                }
+//            }
+//        } else {
+//            loop1:
+//            for (int i = -TRACKING_SEARCH_DISTANCE; i <= TRACKING_SEARCH_DISTANCE; i++) {
+//                loop2:
+//                for (Point2D cons : MathHelper.consecutiveCoords) {
+//                    Point2D p = MathHelper.mult(cons, i);
+//                    Point2D pos = new Point2D.Double(p.getX() + currentScent.getPosition().getX(), p.getY() + currentScent.getPosition().getY());
+//                    ScentPoint scentPoint = currentTrackedEntity.getScentPoint(pos);
+//                    if (scentPoint != null) {
+//                        if (scentPoint.getLife() >= currentScent.getLife()) {
+//                            currentScent = scentPoint;
+//                            break loop1;
+//                        }
+//                    }
+//                }
+//            }
         }
+        if (shouldMove)
+            if (currentTrackedEntity != null) {
+                Vector v = MathHelper.getDirection(position, currentTrackedEntity.getPosition());
+                v.normalize();
+                System.out.println(v);
 
-        if (currentScent != null) {
-            Vector v = MathHelper.getDirection(position, currentScent.getPosition());
-            v.normalize();
+                if (trackingType == TrackingType.LeftRight) {
+                    if (Math.abs(v.getX()) < MathHelper.EPSILON) {
+                        if (v.getY() < 0) {
+                            position = new Point2D.Double(position.getX(), position.getY() - MOVEMENT_SPEED);
+                            setFacing(EntityFacing.Back);
+                        } else if (v.getY() > 0) {
+                            position = new Point2D.Double(position.getX(), position.getY() + MOVEMENT_SPEED);
+                            setFacing(EntityFacing.Front);
 
-            if (trackingType == TrackingType.LeftRight) {
-                if (Math.abs(v.getX()) < 0.01) {
-                    if (v.getY() < 0) {
-                        position = new Point2D.Double(position.getX(), position.getY() - MOVEMENT_SPEED);
-                        setFacing(EntityFacing.Back);
-                    } else if (v.getY() > 0) {
-                        position = new Point2D.Double(position.getX(), position.getY() + MOVEMENT_SPEED);
-                        setFacing(EntityFacing.Front);
-
-                    }
-                } else if (v.getX() < 0) {
-                    position = new Point2D.Double(position.getX() - MOVEMENT_SPEED, position.getY());
-                    setFacing(EntityFacing.Left);
-                } else if (v.getX() > 0) {
-                    position = new Point2D.Double(position.getX() + MOVEMENT_SPEED, position.getY());
-                    setFacing(EntityFacing.Right);
-                }
-            } else if (trackingType == TrackingType.FrontBack) {
-                if (Math.abs(v.getY()) < 0.01) {
-                    if (v.getX() < 0) {
+                        }
+                    } else if (v.getX() < 0) {
                         position = new Point2D.Double(position.getX() - MOVEMENT_SPEED, position.getY());
                         setFacing(EntityFacing.Left);
                     } else if (v.getX() > 0) {
                         position = new Point2D.Double(position.getX() + MOVEMENT_SPEED, position.getY());
                         setFacing(EntityFacing.Right);
-
                     }
-                } else if (v.getY() < 0) {
-                    position = new Point2D.Double(position.getX(), position.getY() - MOVEMENT_SPEED);
-                    setFacing(EntityFacing.Back);
-                } else if (v.getY() > 0) {
-                    position = new Point2D.Double(position.getX(), position.getY() + MOVEMENT_SPEED);
-                    setFacing(EntityFacing.Front);
-                }
-            }
+                } else if (trackingType == TrackingType.FrontBack) {
+                    if (Math.abs(v.getY()) < 0.01) {
+                        if (v.getX() < 0) {
+                            position = new Point2D.Double(position.getX() - MOVEMENT_SPEED, position.getY());
+                            setFacing(EntityFacing.Left);
+                        } else if (v.getX() > 0) {
+                            position = new Point2D.Double(position.getX() + MOVEMENT_SPEED, position.getY());
+                            setFacing(EntityFacing.Right);
 
-            setAction(EntityAction.Walking);
-        }
+                        }
+                    } else if (v.getY() < 0) {
+                        position = new Point2D.Double(position.getX(), position.getY() - MOVEMENT_SPEED);
+                        setFacing(EntityFacing.Back);
+                    } else if (v.getY() > 0) {
+                        position = new Point2D.Double(position.getX(), position.getY() + MOVEMENT_SPEED);
+                        setFacing(EntityFacing.Front);
+                    }
+                }
+
+                setAction(EntityAction.Walking);
+            }
     }
 
 
     @Override
     public void setAction(EntityAction action) {
-        if (hurtingTime == -1) {
+        if (hurtingTime == -1 && this.action != EntityAction.Attacking) {
             this.action = action;
             if (action == EntityAction.Attacking) {
                 animationIndex = 0;
@@ -312,6 +336,17 @@ public class Orc extends Entity implements ITrackerEntity {
     public void addEntityToTrack(ITrackableEntity entity) {
         trackedEntities.add(entity);
     }
+
+    @Override
+    public double getAttackRangeMax() {
+        return ATTACK_RANGE_MAX;
+    }
+
+    @Override
+    public double getAttackRangeMin() {
+        return ATTACK_RANGE_MIN;
+    }
+
 
     private EntityAction idleFunction(int time) {
         double val = Math.sin(time / idleActionFreqDenominator);

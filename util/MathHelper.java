@@ -15,6 +15,8 @@ public class MathHelper {
             new Point(-1, 0), new Point(1, 0), new Point(0, -1), new Point(0, 1)
     };
 
+    public static final double EPSILON = 0.01;
+
     public static Vector getDirection(Point2D pos1, Point2D pos2) {
         return new Vector(pos2.getX() - pos1.getX(), pos2.getY() - pos1.getY());
     }

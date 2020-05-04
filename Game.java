@@ -75,7 +75,7 @@ public class Game extends InputAdapter implements Runnable {
 
         Random rand = new Random(0);
 
-        for (int i = 0; i < 1; i++) {
+        for (int i = 0; i < 5; i++) {
             Orc ent;
             if (i % 5 == 0) {
                 ent = new OrcBoss(world, new Point2D.Double(rand.nextInt(5 * Chunk.CHUNK_SIZE) - 2 * Chunk.CHUNK_SIZE, rand.nextInt(5 * Chunk.CHUNK_SIZE) - 2 * Chunk.CHUNK_SIZE), panel);
@@ -313,6 +313,11 @@ class GameLoop extends Thread {
                 Entity removeEntity = toRemove.pop();
                 enemies.remove(removeEntity);
                 previousActions.remove(removeEntity);
+            }
+
+            if(player.getHealth() <= 0){
+                System.out.println("You died");
+                System.exit(0xDEAD);
             }
             panel.repaint();
 
