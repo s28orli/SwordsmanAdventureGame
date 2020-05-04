@@ -10,6 +10,7 @@ package world;
 import entity.ScentPoint;
 import generation.*;
 import tiles.*;
+import util.MathHelper;
 
 import java.awt.*;
 import java.awt.geom.Point2D;
@@ -37,7 +38,7 @@ public class World {
             Chunk chunk = new Chunk(offset);
             for (int y = 0; y < Chunk.CHUNK_SIZE; y++) {
                 for (int x = 0; x < Chunk.CHUNK_SIZE; x++) {
-                    double val = generator.getValue((offset.x * Chunk.CHUNK_SIZE + x + 0.1), (offset.y * Chunk.CHUNK_SIZE + y + 0.1));
+                    double val = generator.getValue((offset.x * Chunk.CHUNK_SIZE + x + MathHelper.EPSILON), (offset.y * Chunk.CHUNK_SIZE + y + MathHelper.EPSILON));
                     chunk.setTile(new Point(x, y), getTileFromTerrainValue(val));
                 }
             }

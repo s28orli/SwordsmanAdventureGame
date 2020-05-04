@@ -1,5 +1,5 @@
 /**
- * AbstractTile: Description
+ * AbstractTile: Base implementation for a Tile
  *
  * @author Samuil Orlioglu
  * @version 4/22/2020

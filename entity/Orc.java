@@ -101,7 +101,8 @@ public class Orc extends Entity implements ITrackerEntity {
 
     /**
      * Draw the Orc
-     * @param g Graphics object to draw to
+     *
+     * @param g         Graphics object to draw to
      * @param component JPanel to draw to.
      */
     @Override
@@ -111,7 +112,8 @@ public class Orc extends Entity implements ITrackerEntity {
 
     /**
      * Draw the Orc
-     * @param g Graphics object to draw to
+     *
+     * @param g         Graphics object to draw to
      * @param component JPanel to draw to.
      * @param drawDebug boolean to draw debug info.
      */
@@ -246,6 +248,7 @@ public class Orc extends Entity implements ITrackerEntity {
 
     /**
      * Update the Orc's targeting actions
+     *
      * @param shouldMove should the orc move toward target
      */
     private void updateTracking(boolean shouldMove) {
@@ -322,6 +325,7 @@ public class Orc extends Entity implements ITrackerEntity {
 
     /**
      * Set the current action of Orc
+     *
      * @param action New action
      */
     @Override
@@ -340,6 +344,7 @@ public class Orc extends Entity implements ITrackerEntity {
 
     /**
      * Adds a new Entity that Orc will target
+     *
      * @param entity targeted entity.
      */
     @Override
@@ -365,6 +370,7 @@ public class Orc extends Entity implements ITrackerEntity {
 
     /**
      * Uses a function to generate an action for Orc to do while not targeting entities.
+     *
      * @param time Current Time
      * @return Action for Orc to do
      */
@@ -378,6 +384,7 @@ public class Orc extends Entity implements ITrackerEntity {
 
     /**
      * Uses a function to generate an walking direction for Orc to do while not targeting entities.
+     *
      * @param time Current Time
      * @return Direction for Orc to walk toward.
      */
