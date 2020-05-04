@@ -133,12 +133,10 @@ public class Player extends Entity implements ITrackableEntity {
     @Override
     public void run() {
         int time = 0;
-        int scentTime = 0;
         while (true) {
             try {
                 sleep(TIME_DELAY);
                 time += TIME_DELAY;
-                scentTime++;
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -191,10 +189,7 @@ public class Player extends Entity implements ITrackableEntity {
         return scentTrail.values();
     }
 
-    @Override
-    public ScentPoint getMostRecentScentPoint() {
-        return scentTrail.get(0);
-    }
+
 
     @Override
     public synchronized ScentPoint getScentPoint(Point2D position) {

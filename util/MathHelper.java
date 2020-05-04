@@ -18,4 +18,8 @@ public class MathHelper {
     public static Vector getDirection(Point2D pos1, Point2D pos2) {
         return new Vector(pos2.getX() - pos1.getX(), pos2.getY() - pos1.getY());
     }
+
+    public static Point2D mult(Point2D point, double val){
+        return new Point2D.Double(point.getX() * val, point.getY() * val);
+    }
 }

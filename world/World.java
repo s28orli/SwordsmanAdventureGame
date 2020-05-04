@@ -43,14 +43,28 @@ public class World {
 
     public void draw(Graphics g, ImageObserver observer) {
 
+        draw(g, observer, false);
+
+    }
+
+    public void draw(Graphics g, ImageObserver observer, boolean drawDebug) {
+
         for (Point offset : chunks.keySet()) {
 
             for (int y = 0; y < Chunk.CHUNK_SIZE; y++) {
                 for (int x = 0; x < Chunk.CHUNK_SIZE; x++) {
-                    AbstractTile t = chunks.get(offset).getTile(new Point(x, y));
+                    Chunk c = chunks.get(offset);
+
+                    AbstractTile t = c.getTile(new Point(x, y));
                     if (t != null)
                         g.drawImage(t.getTexture(), (offset.x * Chunk.CHUNK_SIZE + x) * AbstractTile.TILE_SIZE, (offset.y * Chunk.CHUNK_SIZE + y) * AbstractTile.TILE_SIZE, AbstractTile.TILE_SIZE, AbstractTile.TILE_SIZE, observer);
 
+                    if(drawDebug){
+                        g.setColor(Color.RED);
+                        g.drawLine(offset.x * Chunk.CHUNK_SIZE * AbstractTile.TILE_SIZE, offset.y * Chunk.CHUNK_SIZE * AbstractTile.TILE_SIZE, (offset.x + 1) * Chunk.CHUNK_SIZE * AbstractTile.TILE_SIZE, offset.y * Chunk.CHUNK_SIZE * AbstractTile.TILE_SIZE);
+                        g.drawLine(offset.x * Chunk.CHUNK_SIZE * AbstractTile.TILE_SIZE, offset.y * Chunk.CHUNK_SIZE * AbstractTile.TILE_SIZE, offset.x * Chunk.CHUNK_SIZE * AbstractTile.TILE_SIZE, (offset.y + 1) * Chunk.CHUNK_SIZE * AbstractTile.TILE_SIZE);
+
+                    }
                 }
             }
         }

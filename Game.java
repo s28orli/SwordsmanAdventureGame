@@ -26,7 +26,7 @@ public class Game extends InputAdapter implements Runnable {
     private final double MOVEMENT = 0.2;
     private Player player;
     private GameLoop mainLoop;
-    private boolean drawDebug = true;
+    private boolean drawDebug = false;
     private World world;
     private Rectangle panelBounds;
     private double zoom = 1;
@@ -101,7 +101,7 @@ public class Game extends InputAdapter implements Runnable {
         g.translate(-(int) (((player.getPosition().getX() * AbstractTile.TILE_SIZE) - width) * zoom), -(int) (((player.getPosition().getY() * AbstractTile.TILE_SIZE) - height) * zoom));
         panelBounds = g.getClipBounds();
         fillWindowWithChunks();
-        world.draw(g, panel);
+        world.draw(g, panel, drawDebug);
         for (Entity enemy : enemies) {
             enemy.draw(g, panel, drawDebug);
         }

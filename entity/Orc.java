@@ -29,13 +29,7 @@ public class Orc extends Entity implements ITrackerEntity {
     public static final double MOVEMENT_SPEED = 0.2;
     protected Image walkingImage;
     protected Image attackingImage;
-    public static final Point2D[] CONSECUTIVE_COORDS = new Point2D[]{
-            new Point(-3, 0), new Point(-2, 0), new Point(-1, 0),
-            new Point(3, 0), new Point(2, 0), new Point(1, 0),
 
-            new Point(0, -3), new Point(0, -2), new Point(0, -1),
-            new Point(0, 3), new Point(0, 2), new Point(0, 1)
-    };
     int animationIndex;
     protected ArrayList<ITrackableEntity> trackedEntities;
     protected ScentPoint currentScent;
@@ -152,26 +146,6 @@ public class Orc extends Entity implements ITrackerEntity {
     }
 
     private void updateTracking() {
-//        if (currentScent == null) {
-//            searchForTarget();
-//        }
-//        if (currentScent != null && currentTrackedEntity != null) {
-//            for (Point2D point : consecutiveCoords) {
-//                Point2D pos = new Point((int) (point.getX() + position.getX()), (int) (point.getY() + position.getY()));
-//                ScentPoint scent = currentTrackedEntity.getScentPoint(pos);
-//                if (scent != null) {
-//                    if (scent.getLife() > currentScent.getLife()) {
-//                        currentScent = scent;
-//                        setAction(EntityAction.Attacking);
-//                        Vector direction = MathHelper.getDirection(position, currentScent.getPosition());
-//                        direction.normalize();
-//                        direction = new Vector(direction.getX() * MOVEMENT_SPEED, direction.getY() * MOVEMENT_SPEED);
-//                        position.setLocation(position.getX() + direction.getX(), position.getY() + direction.getY());
-//                        return;
-//                    }
-//                }
-//            }
-//        }
 
         if (currentScent == null) {
 
@@ -189,12 +163,15 @@ public class Orc extends Entity implements ITrackerEntity {
                 }
             }
         } else {
-            for (Point2D p : CONSECUTIVE_COORDS) {
-                Point2D pos = new Point2D.Double(p.getX() + currentScent.getPosition().getX(), p.getY() + currentScent.getPosition().getY());
-                ScentPoint scentPoint = currentTrackedEntity.getScentPoint(pos);
-                if (scentPoint != null) {
-                    if (scentPoint.getLife() >= currentScent.getLife()) {
-                        currentScent = scentPoint;
+            for (int i = -TRACKING_SEARCH_DISTANCE; i <= TRACKING_SEARCH_DISTANCE; i++) {
+                for (Point2D cons : MathHelper.consecutiveCoords) {
+                    Point2D p = MathHelper.mult(cons, i);
+                    Point2D pos = new Point2D.Double(p.getX() + currentScent.getPosition().getX(), p.getY() + currentScent.getPosition().getY());
+                    ScentPoint scentPoint = currentTrackedEntity.getScentPoint(pos);
+                    if (scentPoint != null) {
+                        if (scentPoint.getLife() >= currentScent.getLife()) {
+                            currentScent = scentPoint;
+                        }
                     }
                 }
             }
@@ -244,24 +221,6 @@ public class Orc extends Entity implements ITrackerEntity {
         }
     }
 
-    private void searchForTarget() {
-
-        for (int y = -Entity.TRACKING_SEARCH_DISTANCE; y <= Entity.TRACKING_SEARCH_DISTANCE; y++) {
-            for (int x = -Entity.TRACKING_SEARCH_DISTANCE; x <= Entity.TRACKING_SEARCH_DISTANCE; x++) {
-                currentScent = world.getScent(new Point((int) (position.getX() + x), (int) (position.getY() + y)));
-                if (currentScent != null) {
-                    currentTrackedEntity = currentScent.getSource();
-                    setAction(EntityAction.Walking);
-                    Vector direction = MathHelper.getDirection(position, currentScent.getPosition());
-                    direction.normalize();
-
-                    position.setLocation(position.getX() + direction.getX(), position.getY() + direction.getY());
-                    return;
-                }
-            }
-        }
-//        }
-    }
 
 
     @Override

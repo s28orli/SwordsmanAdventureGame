@@ -15,6 +15,11 @@ public class Chunk {
     public static final int CHUNK_SIZE = 10;
     private AbstractTile[] tiles;
     private Point offset;
+
+    public Point getOffset() {
+        return offset;
+    }
+
     public Chunk(Point offset){
         this.offset = offset;
         tiles = new AbstractTile[CHUNK_SIZE * CHUNK_SIZE];
