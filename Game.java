@@ -26,7 +26,7 @@ public class Game extends InputAdapter implements Runnable {
     private final double MOVEMENT = 0.2;
     private Player player;
     private GameLoop mainLoop;
-    private boolean drawDebug = false;
+    private boolean drawDebug = true;
     private World world;
     private Rectangle panelBounds;
     private double zoom = 1;

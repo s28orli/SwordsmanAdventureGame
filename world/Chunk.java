@@ -12,7 +12,7 @@ import tiles.AbstractTile;
 import java.awt.*;
 
 public class Chunk {
-    public static final int CHUNK_SIZE = 10;
+    public static final int CHUNK_SIZE = 5;
     private AbstractTile[] tiles;
     private Point offset;
 

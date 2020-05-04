@@ -78,7 +78,7 @@ public class Player extends Entity implements ITrackableEntity {
 
     public void draw(Graphics g, JPanel component, boolean drawDebug) {
         if (drawDebug) {
-            int rad = 10;
+            int rad = 5;
             g.setColor(Color.RED);
             Object[] t = scentTrail.values().toArray();
             for (Object obj : t) {

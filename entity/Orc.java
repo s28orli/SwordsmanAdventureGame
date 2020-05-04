@@ -163,7 +163,9 @@ public class Orc extends Entity implements ITrackerEntity {
                 }
             }
         } else {
+            loop1:
             for (int i = -TRACKING_SEARCH_DISTANCE; i <= TRACKING_SEARCH_DISTANCE; i++) {
+                loop2:
                 for (Point2D cons : MathHelper.consecutiveCoords) {
                     Point2D p = MathHelper.mult(cons, i);
                     Point2D pos = new Point2D.Double(p.getX() + currentScent.getPosition().getX(), p.getY() + currentScent.getPosition().getY());
@@ -171,6 +173,7 @@ public class Orc extends Entity implements ITrackerEntity {
                     if (scentPoint != null) {
                         if (scentPoint.getLife() >= currentScent.getLife()) {
                             currentScent = scentPoint;
+                            break loop1;
                         }
                     }
                 }
