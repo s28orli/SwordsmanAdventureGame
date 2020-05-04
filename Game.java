@@ -11,6 +11,7 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.Stack;
 
 /**
  * Class that represents the character the user will be controlling
@@ -26,9 +27,8 @@ public class Game extends InputAdapter implements Runnable {
     private final double MOVEMENT = 0.2;
     private Entity player;
     private GameLoop mainLoop;
-    int health = 3;
     int score = 0;
-    JLabel healthLabel = new JLabel("Health: " + health);
+    JLabel healthLabel = new JLabel("Health: 100");
     JLabel scoreLabel = new JLabel("Score: " + score);
 
     private World world;
@@ -68,8 +68,7 @@ public class Game extends InputAdapter implements Runnable {
 
             }
         };
-        mainLoop = new GameLoop(panel);
-        mainLoop.start();
+
 
         player = new Player();
         player.start();
@@ -78,42 +77,26 @@ public class Game extends InputAdapter implements Runnable {
         for (int i = 0; i < 10; i++) {
             Entity ent;
             if (i % 5 == 0) {
-                ent = new OrcBoss(new Point(rand.nextInt(5 * Chunk.CHUNK_SIZE) - 2 * Chunk.CHUNK_SIZE, rand.nextInt(5 * Chunk.CHUNK_SIZE) - 2 * Chunk.CHUNK_SIZE));
+                ent = new OrcBoss(new Point(rand.nextInt(5 * Chunk.CHUNK_SIZE) - 2 * Chunk.CHUNK_SIZE, rand.nextInt(5 * Chunk.CHUNK_SIZE) - 2 * Chunk.CHUNK_SIZE), panel);
             } else
-                ent = new Orc(new Point(rand.nextInt(5 * Chunk.CHUNK_SIZE) - 2 * Chunk.CHUNK_SIZE, rand.nextInt(5 * Chunk.CHUNK_SIZE) - 2 * Chunk.CHUNK_SIZE));
+                ent = new Orc(new Point(rand.nextInt(5 * Chunk.CHUNK_SIZE) - 2 * Chunk.CHUNK_SIZE, rand.nextInt(5 * Chunk.CHUNK_SIZE) - 2 * Chunk.CHUNK_SIZE), panel);
             ent.start();
             enemies.add(ent);
         }
 
-        Thread t = new Thread() {
-                public void run() {
-                    while (true) {
-                        for (Entity i:enemies) {
-                            if (player.isCollision(i)) {
-                                System.out.println("ouch");
-                                health--;
-                                //buffer window where player can not get hit again
-                                try {
-                                    sleep(3000);
-                                } catch (InterruptedException e) {
-                                    System.out.print(e);
-                                }
-                            }
-                        }
-                    }
-                }
-            };
-        t.start();
-        
         panel.add(healthLabel);
         panel.add(scoreLabel);
+        healthLabel.setVisible(true);
+        mainLoop = new GameLoop(panel, player, enemies);
+        mainLoop.start();
 
         frame.add(panel);
-        frame.addKeyListener(this); 
+        frame.addKeyListener(this);
         frame.addMouseListener(this);
 
         frame.pack();
         frame.setVisible(true);
+
     }
 
     private void redraw(Graphics g) {
@@ -121,6 +104,7 @@ public class Game extends InputAdapter implements Runnable {
         int height = (int) ((g.getClipBounds().height / 2) * zoom);
 
         g.translate(-(int) (((player.getPosition().getX() * AbstractTile.TILE_SIZE) - width) * zoom), -(int) (((player.getPosition().getY() * AbstractTile.TILE_SIZE) - height) * zoom));
+
         panelBounds = g.getClipBounds();
         fillWindowWithChunks();
         world.draw(g, panel);
@@ -128,6 +112,8 @@ public class Game extends InputAdapter implements Runnable {
             enemy.draw(g, panel);
         }
         player.draw(g, panel);
+        g.setColor(Color.RED);
+        g.setFont(Font.getFont("Comic Sans"));
     }
 
     @Override
@@ -236,7 +222,7 @@ public class Game extends InputAdapter implements Runnable {
             }
         }
 
-        if(e.getKeyCode() == KeyEvent.VK_ESCAPE){
+        if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
             System.exit(0);
         }
     }
@@ -267,18 +253,39 @@ public class Game extends InputAdapter implements Runnable {
 class GameLoop extends Thread {
     JPanel panel;
     private static final int WAIT_TIME = 100;
+    private Entity player;
+    private List<Entity> enemies;
 
-    public GameLoop(JPanel panel) {
+    public GameLoop(JPanel panel, Entity player, List<Entity> enemies) {
         this.panel = panel;
+        this.player = player;
+        this.enemies = enemies;
     }
 
     @Override
     public void run() {
+        Stack<Entity> toRemove = new Stack<>();
         while (true) {
             try {
                 sleep(WAIT_TIME);
             } catch (InterruptedException e) {
                 e.printStackTrace();
+            }
+
+            for (Entity i : enemies) {
+                if (player.isCollision(i) && i.getAction() == EntityAction.Attacking) {
+                    player.setHealth(player.getHealth() - 1);
+                } else if (player.isCollision(i) && player.getAction() == EntityAction.Attacking) {
+                    i.setHealth(i.getHealth() - 1);
+                    i.setAction(EntityAction.Hurting);
+                }
+                if (i.getHealth() <= 0) {
+
+                    toRemove.push(i);
+                }
+            }
+            while (!toRemove.empty()) {
+                enemies.remove(toRemove.pop());
             }
             panel.repaint();
 

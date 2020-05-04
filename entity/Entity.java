@@ -7,6 +7,8 @@
 
 package entity;
 
+import tiles.AbstractTile;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.geom.Point2D;
@@ -24,11 +26,13 @@ public abstract class Entity extends Thread {
     protected int attackingImageCycle = 7;
     protected int walkingImageCycle = 7;
 
+    public int getHealth() {
+        return health;
+    }
 
-
-
-
-
+    public void setHealth(int health) {
+        this.health = health;
+    }
 
     public Entity(){
         this(new Point(0, 0));
@@ -68,7 +72,7 @@ public abstract class Entity extends Thread {
     }
     
     public boolean isCollision (Entity obj) {
-        if (position.distance(obj.position) < 2) {
+        if (position.distance(obj.position) < size * 3) {
             return true;
         }
         return false;
