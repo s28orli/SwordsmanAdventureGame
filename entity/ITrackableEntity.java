@@ -1,11 +1,11 @@
 package entity;
 
 import java.awt.geom.Point2D;
-import java.util.List;
+import java.util.Collection;
 
 public interface ITrackableEntity {
 
-    List<ScentPoint> getScentPoints();
+    Collection<ScentPoint> getScentPoints();
 
     ScentPoint getMostRecentScentPoint();
 

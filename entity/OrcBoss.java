@@ -13,12 +13,13 @@ import world.World;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
+import java.awt.geom.Point2D;
 import java.io.File;
 import java.io.IOException;
 
 public class OrcBoss extends Orc {
 
-    public OrcBoss(World world, Point position) {
+    public OrcBoss(World world, Point2D.Double position) {
         super(world, position);
         this.position = position;
         size = 2;
@@ -38,7 +39,7 @@ public class OrcBoss extends Orc {
     }
 
     public OrcBoss(World world){
-        this(world, new Point(0, 0));
+        this(world, new Point2D.Double(0, 0));
     }
 
     @Override

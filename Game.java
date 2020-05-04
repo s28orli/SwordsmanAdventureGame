@@ -26,7 +26,7 @@ public class Game extends InputAdapter implements Runnable {
     private final double MOVEMENT = 0.2;
     private Player player;
     private GameLoop mainLoop;
-
+    private boolean drawDebug = true;
     private World world;
     private Rectangle panelBounds;
     private double zoom = 1;
@@ -75,10 +75,12 @@ public class Game extends InputAdapter implements Runnable {
         for (int i = 0; i < 10; i++) {
             Orc ent;
             if (i % 5 == 0) {
-                ent = new OrcBoss(world, new Point(rand.nextInt(5 * Chunk.CHUNK_SIZE) - 2 * Chunk.CHUNK_SIZE, rand.nextInt(5 * Chunk.CHUNK_SIZE) - 2 * Chunk.CHUNK_SIZE));
+                ent = new OrcBoss(world, new Point2D.Double(rand.nextInt(5 * Chunk.CHUNK_SIZE) - 2 * Chunk.CHUNK_SIZE, rand.nextInt(5 * Chunk.CHUNK_SIZE) - 2 * Chunk.CHUNK_SIZE));
+                ent.addEntityToTrack(player);
+
             } else {
-                ent = new Orc(world, new Point(rand.nextInt(5 * Chunk.CHUNK_SIZE) - 2 * Chunk.CHUNK_SIZE, rand.nextInt(5 * Chunk.CHUNK_SIZE) - 2 * Chunk.CHUNK_SIZE));
-           ent.addEntityToTrack(player);
+                ent = new Orc(world, new Point2D.Double(rand.nextInt(5 * Chunk.CHUNK_SIZE) - 2 * Chunk.CHUNK_SIZE, rand.nextInt(5 * Chunk.CHUNK_SIZE) - 2 * Chunk.CHUNK_SIZE));
+                ent.addEntityToTrack(player);
             }
             ent.start();
             enemies.add(ent);
@@ -101,9 +103,9 @@ public class Game extends InputAdapter implements Runnable {
         fillWindowWithChunks();
         world.draw(g, panel);
         for (Entity enemy : enemies) {
-            enemy.draw(g, panel);
+            enemy.draw(g, panel, drawDebug);
         }
-        player.draw(g, panel);
+        player.draw(g, panel, drawDebug);
 
 
     }

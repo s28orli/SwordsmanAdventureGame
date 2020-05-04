@@ -27,11 +27,11 @@ public class Player extends Entity implements ITrackableEntity {
     private boolean IsPlayerSwingingSword;
     Image walkingImage;
     Image attackingImage;
-    LinkedList<ScentPoint> scentTrail;
+    HashMap<Point2D, ScentPoint> scentTrail;
 
     public Player(World world) {
         super(world);
-        scentTrail = new LinkedList<ScentPoint>();
+        scentTrail = new HashMap<Point2D, ScentPoint>();
         animationIndex = 0;
         size = 1;
         walkingImageCycle = 7;
@@ -53,7 +53,7 @@ public class Player extends Entity implements ITrackableEntity {
     }
 
     @Override
-    public void setPosition(Point2D position) {
+    public void setPosition(Point2D.Double position) {
         if (!IsPlayerSwingingSword)
             this.position = position;
     }
@@ -76,13 +76,15 @@ public class Player extends Entity implements ITrackableEntity {
         }
     }
 
-    public void draw(Graphics g, JPanel component) {
-        int rad = 10;
-        g.setColor(Color.RED);
-        Object[] t = scentTrail.toArray();
-        for (Object obj : t) {
-            ScentPoint point = (ScentPoint) obj;
-            g.fillOval((int) (point.getPosition().getX() * AbstractTile.TILE_SIZE) - rad, (int) (point.getPosition().getY() * AbstractTile.TILE_SIZE) - rad, rad * 2, rad * 2);
+    public void draw(Graphics g, JPanel component, boolean drawDebug) {
+        if (drawDebug) {
+            int rad = 10;
+            g.setColor(Color.RED);
+            Object[] t = scentTrail.values().toArray();
+            for (Object obj : t) {
+                ScentPoint point = (ScentPoint) obj;
+                g.fillOval((int) (point.getPosition().getX() * AbstractTile.TILE_SIZE) - rad, (int) (point.getPosition().getY() * AbstractTile.TILE_SIZE) - rad, rad * 2, rad * 2);
+            }
         }
 
 
@@ -101,7 +103,6 @@ public class Player extends Entity implements ITrackableEntity {
         if (action == EntityAction.Standing) {
             index = 0;
         }
-
 
         int halfWidth = width / 2;
 
@@ -122,8 +123,11 @@ public class Player extends Entity implements ITrackableEntity {
         g.drawImage(img, x, y, dx, dy, sx, sy, sdx, sdy, component);
 
 
+    }
 
-
+    @Override
+    public void draw(Graphics g, JPanel component) {
+        draw(g, component, false);
     }
 
     @Override
@@ -162,23 +166,29 @@ public class Player extends Entity implements ITrackableEntity {
 
     private synchronized void updateScentTrail() {
         Stack<ScentPoint> toRemove = new Stack<>();
-        for (ScentPoint point : scentTrail) {
-            point.tick();
-            if (point.getLife() <= 0) {
-                toRemove.push(point);
+        for (Point2D point : scentTrail.keySet()) {
+            scentTrail.get(point).tick();
+            if (scentTrail.get(point).getLife() <= 0) {
+                toRemove.push(scentTrail.get(point));
             }
         }
 
         while (!toRemove.empty()) {
-            scentTrail.remove(toRemove.pop());
+            ScentPoint p = toRemove.pop();
+            scentTrail.remove(p.getPosition());
+            world.removeScent(p.getPosition());
+
         }
 
-        scentTrail.addFirst(new ScentPoint(new Point((int)position.getX(), (int)position.getY()), 200, this));
+        Point2D pos = new Point((int) position.getX(), (int) position.getY());
+        ScentPoint s = new ScentPoint(pos, 200, this);
+        scentTrail.put(pos, s);
+        world.addScent(pos, s);
     }
 
     @Override
-    public List<ScentPoint> getScentPoints() {
-        return scentTrail;
+    public Collection<ScentPoint> getScentPoints() {
+        return scentTrail.values();
     }
 
     @Override
@@ -188,7 +198,7 @@ public class Player extends Entity implements ITrackableEntity {
 
     @Override
     public synchronized ScentPoint getScentPoint(Point2D position) {
-        Object[] t = scentTrail.toArray();
+        Object[] t = scentTrail.values().toArray();
         for (Object obj : t) {
             ScentPoint point = (ScentPoint) obj;
             if (point.getPosition().equals(position)) {

@@ -20,7 +20,7 @@ public abstract class Entity extends Thread {
     public static final int ATTACKING_ANIMATION_SIZE = 192;
     public static final int TRACKING_SEARCH_DISTANCE = 5;
     protected World world;
-    protected Point2D position;
+    protected Point2D.Double position;
     protected EntityFacing facing;
     protected EntityAction action;
     protected int health;
@@ -29,19 +29,12 @@ public abstract class Entity extends Thread {
     protected int walkingImageCycle = 7;
 
 
-
-
-
-
-
-    public Entity(World world){
-        this(world, new Point(0, 0));
+    public Entity(World world) {
+        this(world, new Point2D.Double(0, 0));
     }
 
 
-
-
-    public Entity(World world, Point position){
+    public Entity(World world, Point2D.Double position) {
         this.world = world;
         facing = EntityFacing.Front;
         action = EntityAction.Standing;
@@ -52,7 +45,7 @@ public abstract class Entity extends Thread {
         return position;
     }
 
-    public void setPosition(Point2D position) {
+    public void setPosition(Point2D.Double position) {
         this.position = position;
     }
 
@@ -73,4 +66,7 @@ public abstract class Entity extends Thread {
     }
 
     public abstract void draw(Graphics g, JPanel component);
+
+    public abstract void draw(Graphics g, JPanel component, boolean drawDebug);
+
 }

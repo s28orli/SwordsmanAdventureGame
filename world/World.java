@@ -7,10 +7,12 @@
 
 package world;
 
+import entity.ScentPoint;
 import generation.*;
 import tiles.*;
 
 import java.awt.*;
+import java.awt.geom.Point2D;
 import java.awt.image.ImageObserver;
 import java.util.HashMap;
 
@@ -18,11 +20,12 @@ import java.util.HashMap;
 public class World {
     private HashMap<Point, Chunk> chunks;
     private IGenerator generator;
+    private HashMap<Point2D, ScentPoint> scents;
 
     public World() {
         chunks = new HashMap<>();
         generator = new PerlinGenerator(3, 40, 70, .01);
-
+        scents = new HashMap<>();
     }
 
     public void generateChunk(Point offset) {
@@ -93,5 +96,20 @@ public class World {
             return new DirtTile();
         }
         else return new StoneTile();
+    }
+
+    public void addScent(Point2D point, ScentPoint scentPoint){
+        scents.put(point, scentPoint);
+    }
+
+    public void removeScent(Point2D point){
+        if(scents.containsKey(point))
+            scents.remove(point);
+    }
+
+    public ScentPoint getScent(Point2D point){
+        if(scents.containsKey(point))
+            return scents.get(point);
+        return null;
     }
 }
