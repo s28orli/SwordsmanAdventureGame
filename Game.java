@@ -19,23 +19,26 @@ import java.util.List;
  */
 public class Game extends InputAdapter implements Runnable {
 
-    private JPanel panel;
+    JPanel panel;
     private final int WINDOW_HEIGHT = 800;
     private final int WINDOW_LENGTH = 900;
-    private final double MOVEMENT = 0.2;
-    private Player player;
+    private final double MOVEMENT = 0.1;
+    public static final double DIFFICULTY_INCREASE_MULTIPLIER = 1.03;
+    Player player;
     private GameLoop mainLoop;
     private JLabel scoreLabel;
     private JLabel healthLabel;
     private JLabel numEnemiesLabel;
+    private JLabel roundLabel;
+    int round = 0;
+    int score = 0;
 
-
-    private boolean drawDebug = true;
+    private boolean drawDebug = false;
     private World world;
     private Rectangle panelBounds;
     private double zoom = 1;
 
-    private List<Entity> enemies;
+    List<Entity> enemies;
 
     @Override
     public void run() {
@@ -75,32 +78,22 @@ public class Game extends InputAdapter implements Runnable {
 
         Random rand = new Random(0);
 
-        for (int i = 0; i < 5; i++) {
-            Orc ent;
-            if (i % 5 == 0) {
-                ent = new OrcBoss(world, new Point2D.Double(rand.nextInt(5 * Chunk.CHUNK_SIZE) - 2 * Chunk.CHUNK_SIZE, rand.nextInt(5 * Chunk.CHUNK_SIZE) - 2 * Chunk.CHUNK_SIZE), panel);
-            } else
-                ent = new Orc(world, new Point2D.Double(rand.nextInt(5 * Chunk.CHUNK_SIZE) - 2 * Chunk.CHUNK_SIZE, rand.nextInt(5 * Chunk.CHUNK_SIZE) - 2 * Chunk.CHUNK_SIZE), panel);
-            ent.addEntityToTrack(player);
 
-            ent.start();
-            enemies.add(ent);
-        }
-
-
-        mainLoop = new GameLoop(panel, player, enemies);
+        mainLoop = new GameLoop(this);
         mainLoop.start();
         frame.add(mainPanel);
         mainPanel.add(panel, BorderLayout.CENTER);
 
-        scoreLabel = new JLabel("Score: " + mainLoop.getScore());
+        scoreLabel = new JLabel("Score: " + score);
         healthLabel = new JLabel("Health: " + player.getHealth());
         numEnemiesLabel = new JLabel("Number of Enemies: " + enemies.size());
+        roundLabel = new JLabel("Round: 1");
         JPanel panel2 = new JPanel(new GridLayout(1, 4));
         mainPanel.add(panel2, BorderLayout.NORTH);
         panel2.add(scoreLabel);
         panel2.add(healthLabel);
         panel2.add(numEnemiesLabel);
+        panel2.add(roundLabel);
 
 
         frame.addKeyListener(this);
@@ -112,7 +105,7 @@ public class Game extends InputAdapter implements Runnable {
     }
 
     private void redraw(Graphics g) {
-        scoreLabel.setText("Score: " + mainLoop.getScore());
+        scoreLabel.setText("Score: " + score);
         healthLabel.setText("Health: " + player.getHealth());
         numEnemiesLabel.setText("Number of Enemies: " + enemies.size());
 
@@ -260,6 +253,28 @@ public class Game extends InputAdapter implements Runnable {
             }
     }
 
+    public void setupNextLevel(int level) {
+        /*
+         * Number of enemies per level = (level - 1)^ DIFFICULTY_INCREASE_MULTIPLIER + 10
+         */
+        int numEnemies = (int) (Math.pow(level - 1, Game.DIFFICULTY_INCREASE_MULTIPLIER) + 10);
+        Random rand = new Random();
+        for (int i = 0; i < numEnemies; i++) {
+            Orc ent;
+            if (i % 5 == 0) {
+                ent = new OrcBoss(world, new Point2D.Double(rand.nextInt(10 * Chunk.CHUNK_SIZE) - 5 * Chunk.CHUNK_SIZE, rand.nextInt(10 * Chunk.CHUNK_SIZE) - 5 * Chunk.CHUNK_SIZE), panel);
+            } else
+                ent = new Orc(world, new Point2D.Double(rand.nextInt(10 * Chunk.CHUNK_SIZE) - 5 * Chunk.CHUNK_SIZE, rand.nextInt(10 * Chunk.CHUNK_SIZE) - 5 * Chunk.CHUNK_SIZE), panel);
+            ent.addEntityToTrack(player);
+
+            ent.start();
+            enemies.add(ent);
+        }
+
+        numEnemiesLabel.setText("Number of Enemies: " + numEnemies);
+        roundLabel.setText("Round: " + level);
+    }
+
     public static void main(String args[]) throws IOException {
 
         javax.swing.SwingUtilities.invokeLater(new Game());
@@ -270,23 +285,18 @@ public class Game extends InputAdapter implements Runnable {
  * GameLoop class: The purpose is to unify calls to redraw the graphics.
  */
 class GameLoop extends Thread {
-    JPanel panel;
     private static final int WAIT_TIME = 100;
-    private Entity player;
-    private List<Entity> enemies;
-    private int score;
+    Game game;
 
-    public GameLoop(JPanel panel, Entity player, List<Entity> enemies) {
-        this.panel = panel;
-        this.player = player;
-        this.enemies = enemies;
+    public GameLoop(Game game) {
+        this.game = game;
     }
 
     @Override
     public void run() {
         Stack<Entity> toRemove = new Stack<>();
         HashMap<Entity, EntityAction> previousActions = new HashMap<>();
-        for (Entity i : enemies) {
+        for (Entity i : game.enemies) {
             previousActions.put(i, i.getAction());
         }
         while (true) {
@@ -296,35 +306,41 @@ class GameLoop extends Thread {
                 e.printStackTrace();
             }
 
-            for (Entity i : enemies) {
-                if (player.isCollision(i) && i.getAction() == EntityAction.Attacking && previousActions.get(i) != EntityAction.Attacking) {
-                    player.setHealth(player.getHealth() - i.getDamage());
-                } else if (player.isCollision(i) && player.getAction() == EntityAction.Attacking) {
-                    i.setHealth(i.getHealth() - player.getDamage());
+            for (Entity i : game.enemies) {
+                if (game.player.isCollision(i) && i.getAction() == EntityAction.Attacking && previousActions.get(i) != EntityAction.Attacking) {
+                    game.player.setHealth(game.player.getHealth() - i.getDamage());
+                } else if (game.player.isCollision(i) && game.player.getAction() == EntityAction.Attacking) {
+                    i.setHealth(i.getHealth() - game.player.getDamage());
                     i.setAction(EntityAction.Hurting);
                 }
                 if (i.getHealth() <= 0) {
-                    score++;
+                    if (i instanceof OrcBoss) {
+                        game.score += 2;
+                    } else
+                        game.score++;
                     toRemove.push(i);
                 }
                 previousActions.put(i, i.getAction());
             }
             while (!toRemove.empty()) {
                 Entity removeEntity = toRemove.pop();
-                enemies.remove(removeEntity);
+                game.enemies.remove(removeEntity);
                 previousActions.remove(removeEntity);
             }
 
-            if(player.getHealth() <= 0){
+            if (game.player.getHealth() <= 0) {
                 System.out.println("You died");
                 System.exit(0xDEAD);
             }
-            panel.repaint();
+
+            if (game.enemies.size() == 0) {
+                game.round++;
+                game.setupNextLevel(game.round);
+            }
+            game.panel.repaint();
 
         }
     }
 
-    public int getScore() {
-        return score;
-    }
+
 }

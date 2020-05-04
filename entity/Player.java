@@ -207,7 +207,6 @@ public class Player extends Entity implements ITrackableEntity {
     }
 
 
-
     @Override
     public synchronized ScentPoint getScentPoint(Point2D position) {
         Object[] t = scentTrail.values().toArray();

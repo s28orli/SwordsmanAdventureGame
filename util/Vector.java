@@ -34,11 +34,11 @@ public class Vector extends Point2D {
         this.y = y;
     }
 
-    public double magnitude(){
+    public double magnitude() {
         return Math.sqrt(x * x + y * y);
     }
 
-    public void normalize(){
+    public void normalize() {
         x = x / magnitude();
         y = y / magnitude();
     }

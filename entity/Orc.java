@@ -28,7 +28,7 @@ public class Orc extends Entity implements ITrackerEntity {
     }
 
 
-    public static final double MOVEMENT_SPEED = 0.3;
+    public static final double MOVEMENT_SPEED = 0.1;
     public static final double TARGET_DETECTION_RANGE = 10;
     public static final double ATTACK_RANGE_MIN = 1;
     public static final double ATTACK_RANGE_MAX = 3;
@@ -194,9 +194,9 @@ public class Orc extends Entity implements ITrackerEntity {
                         double distance = position.distance(currentTrackedEntity.getPosition());
                         if (distance > getAttackRangeMin() && distance <= getAttackRangeMax()) {
                             setAction(EntityAction.Attacking);
-                        } else if (distance < getAttackRangeMin()) { // Give player some time to escape a pile up.
-                            setAction(EntityAction.Standing);
-                            trackTimeout = 10;
+                        } else if (distance < getAttackRangeMin()) {
+                            setAction(EntityAction.Attacking);
+                            trackTimeout = 10; // Give player some time to escape a pile up.
 
                         }
 
@@ -244,71 +244,56 @@ public class Orc extends Entity implements ITrackerEntity {
                 return;
             }
 
-
-//            double minimumDistance = Double.MAX_VALUE;
-//            for (Object obj : currentTrackedEntity.getScentPoints().toArray()) {
-//                ScentPoint scent = (ScentPoint) obj;
-//                double dist = position.distance(scent.getPosition());
-//                if (dist < minimumDistance) {
-//                    minimumDistance = dist;
-//                    currentScent = scent;
-//                }
-//            }
-//        } else {
-//            loop1:
-//            for (int i = -TRACKING_SEARCH_DISTANCE; i <= TRACKING_SEARCH_DISTANCE; i++) {
-//                loop2:
-//                for (Point2D cons : MathHelper.consecutiveCoords) {
-//                    Point2D p = MathHelper.mult(cons, i);
-//                    Point2D pos = new Point2D.Double(p.getX() + currentScent.getPosition().getX(), p.getY() + currentScent.getPosition().getY());
-//                    ScentPoint scentPoint = currentTrackedEntity.getScentPoint(pos);
-//                    if (scentPoint != null) {
-//                        if (scentPoint.getLife() >= currentScent.getLife()) {
-//                            currentScent = scentPoint;
-//                            break loop1;
-//                        }
-//                    }
-//                }
-//            }
         }
         if (shouldMove)
             if (currentTrackedEntity != null) {
                 Vector v = MathHelper.getDirection(position, currentTrackedEntity.getPosition());
+
+                double moveX = MOVEMENT_SPEED;
+                double moveY = MOVEMENT_SPEED;
+
+                // Avoid Orc position flopping bug
+                if (Math.abs(currentTrackedEntity.getPosition().getX() - position.getX()) < MOVEMENT_SPEED) {
+                    moveX = Math.abs(currentTrackedEntity.getPosition().getX() - position.getX());
+                }
+                if (Math.abs(currentTrackedEntity.getPosition().getY() - position.getY()) < MOVEMENT_SPEED) {
+                    moveY = Math.abs(currentTrackedEntity.getPosition().getY() - position.getY());
+                }
                 v.normalize();
-                System.out.println(v);
 
                 if (trackingType == TrackingType.LeftRight) {
                     if (Math.abs(v.getX()) < MathHelper.EPSILON) {
                         if (v.getY() < 0) {
-                            position = new Point2D.Double(position.getX(), position.getY() - MOVEMENT_SPEED);
+                            position = new Point2D.Double(position.getX(), position.getY() - moveY);
                             setFacing(EntityFacing.Back);
                         } else if (v.getY() > 0) {
-                            position = new Point2D.Double(position.getX(), position.getY() + MOVEMENT_SPEED);
+                            position = new Point2D.Double(position.getX(), position.getY() + moveY);
                             setFacing(EntityFacing.Front);
 
                         }
                     } else if (v.getX() < 0) {
-                        position = new Point2D.Double(position.getX() - MOVEMENT_SPEED, position.getY());
+                        position = new Point2D.Double(position.getX() - moveX, position.getY());
                         setFacing(EntityFacing.Left);
                     } else if (v.getX() > 0) {
-                        position = new Point2D.Double(position.getX() + MOVEMENT_SPEED, position.getY());
+                        position = new Point2D.Double(position.getX() + moveX, position.getY());
                         setFacing(EntityFacing.Right);
                     }
+
                 } else if (trackingType == TrackingType.FrontBack) {
-                    if (Math.abs(v.getY()) < 0.01) {
+                    if (Math.abs(v.getY()) < MathHelper.EPSILON) {
                         if (v.getX() < 0) {
-                            position = new Point2D.Double(position.getX() - MOVEMENT_SPEED, position.getY());
+                            position = new Point2D.Double(position.getX() - moveX, position.getY());
                             setFacing(EntityFacing.Left);
                         } else if (v.getX() > 0) {
-                            position = new Point2D.Double(position.getX() + MOVEMENT_SPEED, position.getY());
+                            position = new Point2D.Double(position.getX() + moveX, position.getY());
                             setFacing(EntityFacing.Right);
 
                         }
                     } else if (v.getY() < 0) {
-                        position = new Point2D.Double(position.getX(), position.getY() - MOVEMENT_SPEED);
+                        position = new Point2D.Double(position.getX(), position.getY() - moveY);
                         setFacing(EntityFacing.Back);
                     } else if (v.getY() > 0) {
-                        position = new Point2D.Double(position.getX(), position.getY() + MOVEMENT_SPEED);
+                        position = new Point2D.Double(position.getX(), position.getY() + moveY);
                         setFacing(EntityFacing.Front);
                     }
                 }
